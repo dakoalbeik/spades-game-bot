@@ -25,12 +25,12 @@ class Environment:
         print('Initializing environment . . .')
         sleep(1)
 
-        # Select learning agent and three other agents
+        # Select learning agents and three other agents
         self.select_agents(learner)
         print('Agents selected')
         sleep(1)
 
-        # Select random agent to go first for first round.
+        # Select random agents to go first for first round.
         # Round concludes when 13 tricks are played.
         # As in real life, the player to the dealer's left (i.e., next player in list players) will lead the next round.
         index_of_leading_player = randint(0, 3)

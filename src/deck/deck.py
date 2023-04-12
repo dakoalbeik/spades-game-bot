@@ -25,4 +25,10 @@ class Deck:
     def shuffle(self):
         random.shuffle(self.cards)
 
+    def draw_card(self):
+        return self.cards.pop()
 
+    def reset(self):
+        self.cards.clear()
+        self.set_cards()
+        self.shuffle()

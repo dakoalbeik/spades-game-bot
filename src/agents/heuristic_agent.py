@@ -2,7 +2,10 @@ from agent import Agent
 import random
 
 
-class RandomAgent(Agent):
+class HeuristicAgent(Agent):
+
+    NAME = "Heuristic"
+
     def __init__(self):
         super().__init__()
 
