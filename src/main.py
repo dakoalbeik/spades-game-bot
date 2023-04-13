@@ -1,7 +1,6 @@
 from agent import Agent
 from environment import Environment
 
-
 # Initialize Agent which will act and learn
 q_agent = Agent()
 q_agent.fetch_random_version()
