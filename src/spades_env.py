@@ -61,18 +61,42 @@ class SpadesEnv:
             curr_bidder %= SpadesEnv.PLAYERS_NUM
         self.bids = bids
 
+    # def calculate_team_score(self):
+    #     team_scores_current_round = [0, 0]
+    #     for i in range(2):
+    #         target_bids = self.bids[i] + self.bids[i + 2]
+    #         achieved_bids = self.bids_won[i] + self.bids_won[i + 2]
+    #         if target_bids > achieved_bids:
+    #             team_scores_current_round[i] = (target_bids * -10)
+    #         else:
+    #             team_scores_current_round[i] = (target_bids * 10) + achieved_bids - target_bids
+    #     # TODO: determine what to keep from each round
+    #     self.rounds_history.append(team_scores_current_round)
+    #     # TODO: calculate game score
+
     def calculate_team_score(self):
-        team_scores_current_round = [0, 0]
-        for i in range(2):
-            target_bids = self.bids[i] + self.bids[i + 2]
-            achieved_bids = self.bids_won[i] + self.bids_won[i + 2]
-            if target_bids > achieved_bids:
-                team_scores_current_round[i] = (target_bids * -10)
+        round_scores = [0] * SpadesEnv.PLAYERS_NUM
+        i = 0
+        while i < SpadesEnv.PLAYERS_NUM:
+
+            team_target_bids = self.bids[i] + self.bids[i + 2]
+            team_trick_count = self.bids_won[i] + self.bids_won[i + 2]
+
+            if self.bids[i] == 0:
+                round_scores[i] = 50 if self.bids_won[i] == 0 else -50
+                i += 1
             else:
-                team_scores_current_round[i] = (target_bids * 10) + achieved_bids - target_bids
+                if team_trick_count < team_target_bids:
+                    round_scores[i] = (team_target_bids * -10)
+                else:
+                    round_scores[i] = (team_target_bids * 10) + team_trick_count - team_target_bids
+                if i not in [3, 4] and self.bids[i + 2] != 0:
+                    i += 2
+                else:
+                    i += 1
+
         # TODO: determine what to keep from each round
-        self.rounds_history.append(team_scores_current_round)
-        # TODO: calculate game score
+        self.rounds_history.append([round_scores[0], round_scores[2], round_scores[1], round_scores[3]])
 
     def increment_bidder(self):
         self.leading_bidder_idx = (self.leading_bidder_idx + 1) % SpadesEnv.PLAYERS_NUM
