@@ -16,6 +16,7 @@ class SpadesEnv:
     NIL = 0
 
     def __init__(self, agents_types=None):
+
         self.game_over = False
         self.rounds_history = []
         self.scores = [0] * 4
@@ -54,14 +55,9 @@ class SpadesEnv:
             self.increment_bidder()
             self.check_game_over()
 
-    def collect_bids(self, leading_bidder_idx):
-        bids = [0] * SpadesEnv.PLAYERS_NUM
-        curr_bidder = leading_bidder_idx
+    def collect_bids(self):
         for i in range(SpadesEnv.PLAYERS_NUM):
-            bids[curr_bidder] = self.agents[i].bid()
-            curr_bidder += 1
-            curr_bidder %= SpadesEnv.PLAYERS_NUM
-        self.bids = bids
+            self.bids[i] = self.agents[(self.leading_bidder_idx + i) % SpadesEnv.PLAYERS_NUM].bid()
 
     def calculate_team_round_score(self):
         round_scores = [0, 0]
