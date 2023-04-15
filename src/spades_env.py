@@ -5,18 +5,20 @@ from agents.greedy_agent import GreedyAgent
 from agents.heuristic_agent import HeuristicAgent
 from agents.random_agent import RandomAgent
 from card_trick import CardTrick
-from deck import Deck
 from deck.card import Suit, Card
+from deck.deck import Deck
 
 
 class SpadesEnv:
+    WINNING_SCORE = 500
+    TEAMS = True
     PLAYERS_NUM = 4
     MAX_TRICK_COUNT = 13
-    WINNING_SCORE = 500
     NIL = 0
 
-    def __init__(self, agents_types=None):
-
+    def __init__(self, teams=True, max_score=500, agents_types=None):
+        SpadesEnv.TEAMS = teams
+        SpadesEnv.WINNING_SCORE = max_score
         self.game_over = False
         self.rounds_history = []
         self.scores = [0] * 4
@@ -47,13 +49,11 @@ class SpadesEnv:
             elif agents_types[i] == GreedyAgent.NAME:
                 self.agents.append(GreedyAgent())
 
-    def play_game(self):
-        self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
-        while not self.game_over:
-            self.play_round()
-            self.collect_scores()
-            self.increment_bidder()
-            self.check_game_over()
+    def deal_cards(self):
+        self.deck.shuffle()
+        for i in range(SpadesEnv.MAX_TRICK_COUNT):
+            for j in range(SpadesEnv.PLAYERS_NUM):
+                self.hands[j].append(self.deck.draw_card())
 
     def collect_bids(self):
         for i in range(SpadesEnv.PLAYERS_NUM):
@@ -62,7 +62,6 @@ class SpadesEnv:
     def calculate_team_round_score(self):
         round_scores = [0, 0]
         round_bags = [0, 0]
-        SpadesEnv.NIL = 0
 
         for i in range(4):
             # if player goes SpadesEnv.NIL
@@ -94,16 +93,26 @@ class SpadesEnv:
         self.leading_bidder_idx = (self.leading_bidder_idx + 1) % SpadesEnv.PLAYERS_NUM
 
     def collect_scores(self):
-
-        pass
+        if SpadesEnv.TEAMS:
+            self.calculate_team_round_score()
+        else:
+            self.calculate_solo_round_score()
 
     def check_game_over(self):
         team1 = self.scores[0] + self.scores[2]
         team2 = self.scores[1] + self.scores[3]
         self.game_over = team1 >= SpadesEnv.WINNING_SCORE or team2 >= SpadesEnv.WINNING_SCORE
 
+    def play_game(self):
+        self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
+        while not self.game_over:
+            self.play_round()
+            self.collect_scores()
+            self.increment_bidder()
+            self.check_game_over()
+
     def play_round(self):
-        # TODO 01: split the deck 4 ways
+        self.deal_cards()
         self.collect_bids()
         self.tricks_won = [0] * 4
         self.previous_trick_winner = self.leading_bidder_idx
@@ -115,11 +124,11 @@ class SpadesEnv:
     def play_trick(self):
         self.trick.reset()
         for i in range(SpadesEnv.PLAYERS_NUM):
-            played_card = self.agents[self.previous_trick_winner].select_card()
+            played_card = self.agents[(self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM].select_card()
+            self.deck.add_card(played_card)
+            self.trick.accept_card(played_card)
             if played_card.suit.value == Suit.SPADES:
                 self.spades_broken = True
-            self.trick.accept_card(played_card)
-            self.previous_trick_winner = (self.previous_trick_winner + 1) % SpadesEnv.PLAYERS_NUM
 
     def get_valid_cards(self, player_index: int) -> List[Card]:
         """
@@ -141,3 +150,6 @@ class SpadesEnv:
         return player_hand if not leading_suit or self.spades_broken or all(
             card.suit == Suit.SPADES for card in player_hand) else [card for card in player_hand if
                                                                     card.suit != Suit.SPADES]
+
+    def calculate_solo_round_score(self):
+        pass

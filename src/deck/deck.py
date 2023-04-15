@@ -6,10 +6,10 @@ from card import Rank, Suit, Card
 class Deck:
     def __init__(self):
         self.cards = []
-        self.set_cards()
+        self.set_full_deck()
         self.shuffle()
 
-    def set_cards(self):
+    def set_full_deck(self):
         for suit in Suit:
             for rank in Rank:
                 card = Card(rank, suit)
@@ -28,7 +28,10 @@ class Deck:
     def draw_card(self):
         return self.cards.pop()
 
+    def add_card(self, card):
+        self.cards.append(card)
+
     def reset(self):
         self.cards.clear()
-        self.set_cards()
+        self.set_full_deck()
         self.shuffle()
