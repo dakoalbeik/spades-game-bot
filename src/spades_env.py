@@ -1,10 +1,12 @@
 import random
+from typing import List
 
 from agents.greedy_agent import GreedyAgent
 from agents.heuristic_agent import HeuristicAgent
 from agents.random_agent import RandomAgent
 from card_trick import CardTrick
 from deck import Deck
+from deck.card import Suit, Card
 
 
 class SpadesEnv:
@@ -16,15 +18,16 @@ class SpadesEnv:
     def __init__(self, agents_types=None):
         self.game_over = False
         self.rounds_history = []
-        self.scores = [0, 0, 0, 0]
+        self.scores = [0] * 4
         self.deck = Deck()
         self.trick = CardTrick()
         self.bids = [0] * 4
         self.tricks_won = [0] * 4
         self.leading_bidder_idx = 0
         self.previous_trick_winner = 0
-
+        self.spades_broken = False
         self.agents = []
+        self.hands = [[]] * 4
         self.init_agents(agents_types)
 
     def init_agents(self, agents_types):
@@ -50,8 +53,6 @@ class SpadesEnv:
             self.collect_scores()
             self.increment_bidder()
             self.check_game_over()
-            # if (scores[0] + scores[2] >= WINNING_SCORE) or (scores[1] + scores[3] >= WINNING_SCORE):
-            #     self.game_over = True
 
     def collect_bids(self, leading_bidder_idx):
         bids = [0] * SpadesEnv.PLAYERS_NUM
@@ -119,5 +120,28 @@ class SpadesEnv:
         self.trick.reset()
         for i in range(SpadesEnv.PLAYERS_NUM):
             played_card = self.agents[self.previous_trick_winner].select_card()
+            if played_card.suit.value == Suit.SPADES:
+                self.spades_broken = True
             self.trick.accept_card(played_card)
             self.previous_trick_winner = (self.previous_trick_winner + 1) % SpadesEnv.PLAYERS_NUM
+
+    def get_valid_cards(self, player_index: int) -> List[Card]:
+        """
+        Loops over the given players hand and returns a list of the possible cards to be played
+        :param player_index
+        :return: List of valid cards
+        """
+        player_hand = self.hands[player_index]
+        leading_suit = self.trick.leading_suit
+
+        # if there's a leading suit, and the player has it, then only this suit can be played
+        if leading_suit:
+            can_play_leading_suit = any(card.suit == leading_suit for card in player_hand)
+            if can_play_leading_suit:
+                return [card for card in player_hand if card.suit == leading_suit]
+
+        # otherwise, if the player is out of the suit or spades are broken
+        # or the player only has spades, allow any move
+        return player_hand if not leading_suit or self.spades_broken or all(
+            card.suit == Suit.SPADES for card in player_hand) else [card for card in player_hand if
+                                                                    card.suit != Suit.SPADES]
