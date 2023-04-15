@@ -11,6 +11,7 @@ class SpadesEnv:
     PLAYERS_NUM = 4
     MAX_TRICK_COUNT = 13
     WINNING_SCORE = 500
+    NIL = 0
 
     def __init__(self, agents_types=None):
         self.game_over = False
@@ -19,7 +20,7 @@ class SpadesEnv:
         self.deck = Deck()
         self.trick = CardTrick()
         self.bids = [0] * 4
-        self.bids_won = [0] * 4
+        self.tricks_won = [0] * 4
         self.leading_bidder_idx = 0
         self.previous_trick_winner = 0
 
@@ -61,42 +62,36 @@ class SpadesEnv:
             curr_bidder %= SpadesEnv.PLAYERS_NUM
         self.bids = bids
 
-    # def calculate_team_score(self):
-    #     team_scores_current_round = [0, 0]
-    #     for i in range(2):
-    #         target_bids = self.bids[i] + self.bids[i + 2]
-    #         achieved_bids = self.bids_won[i] + self.bids_won[i + 2]
-    #         if target_bids > achieved_bids:
-    #             team_scores_current_round[i] = (target_bids * -10)
-    #         else:
-    #             team_scores_current_round[i] = (target_bids * 10) + achieved_bids - target_bids
-    #     # TODO: determine what to keep from each round
-    #     self.rounds_history.append(team_scores_current_round)
-    #     # TODO: calculate game score
+    def calculate_team_round_score(self):
+        round_scores = [0, 0]
+        round_bags = [0, 0]
+        SpadesEnv.NIL = 0
 
-    def calculate_team_score(self):
-        round_scores = [0] * SpadesEnv.PLAYERS_NUM
-        i = 0
-        while i < SpadesEnv.PLAYERS_NUM:
-
-            team_target_bids = self.bids[i] + self.bids[i + 2]
-            team_trick_count = self.bids_won[i] + self.bids_won[i + 2]
-
-            if self.bids[i] == 0:
-                round_scores[i] = 50 if self.bids_won[i] == 0 else -50
-                i += 1
-            else:
+        for i in range(4):
+            # if player goes SpadesEnv.NIL
+            team_mate = (i + 2) % 4
+            curr_score = i % 2
+            if self.bids[i] == SpadesEnv.NIL:
+                if self.tricks_won[i] == 0:
+                    round_scores[curr_score] += 100
+                else:
+                    round_scores[curr_score] -= 100
+                    round_bags[curr_score] += self.tricks_won[i]
+            # if player bid, and the score for the team is getting set for the first time, or the teammate bid nil
+            # (meaning the current score doesn't account for this current player's score)
+            elif round_scores[curr_score] == 0 or self.bids[team_mate] == SpadesEnv.NIL:
+                team_target_bids = self.bids[i] + self.bids[team_mate]
+                team_trick_count = self.tricks_won[i] + self.tricks_won[team_mate]
                 if team_trick_count < team_target_bids:
-                    round_scores[i] = (team_target_bids * -10)
+                    round_scores[curr_score] -= team_target_bids * 10
                 else:
-                    round_scores[i] = (team_target_bids * 10) + team_trick_count - team_target_bids
-                if i not in [3, 4] and self.bids[i + 2] != 0:
-                    i += 2
-                else:
-                    i += 1
+                    round_scores[curr_score] += team_target_bids * 10
+                    if self.bids[team_mate] == SpadesEnv.NIL:
+                        round_bags[curr_score] += self.tricks_won[i] - self.bids[i]
+                    else:
+                        round_bags[curr_score] += team_trick_count - team_target_bids
 
-        # TODO: determine what to keep from each round
-        self.rounds_history.append([round_scores[0], round_scores[2], round_scores[1], round_scores[3]])
+        return round_scores, round_bags
 
     def increment_bidder(self):
         self.leading_bidder_idx = (self.leading_bidder_idx + 1) % SpadesEnv.PLAYERS_NUM
@@ -111,22 +106,14 @@ class SpadesEnv:
         self.game_over = team1 >= SpadesEnv.WINNING_SCORE or team2 >= SpadesEnv.WINNING_SCORE
 
     def play_round(self):
-        # split the deck 4 ways
-
+        # TODO 01: split the deck 4 ways
         self.collect_bids()
-        self.bids_won = [0] * 4
+        self.tricks_won = [0] * 4
         self.previous_trick_winner = self.leading_bidder_idx
         for trick in range(SpadesEnv.MAX_TRICK_COUNT):
             self.play_trick()
             self.previous_trick_winner = self.trick.determine_winner()
-            self.bids_won[self.previous_trick_winner] += 1
-
-        # BID/PLAY ORDER:
-        #  * For first round, first-to-bid is determined randomly
-        #  * After first bidder, bids are taken successively [p1 -> p2 -> p3 -> p4]
-        #  * Upon collection of all bids, first-to-bid plays into trick first (play proceeds to left)
-        #  * Upon trick containing four cards, winner is determined and he/she is first to act in next trick
-        #  * After completion of round and collection of scores, player to left of initial first-to-bid then bids first
+            self.tricks_won[self.previous_trick_winner] += 1
 
     def play_trick(self):
         self.trick.reset()
@@ -134,19 +121,3 @@ class SpadesEnv:
             played_card = self.agents[self.previous_trick_winner].select_card()
             self.trick.accept_card(played_card)
             self.previous_trick_winner = (self.previous_trick_winner + 1) % SpadesEnv.PLAYERS_NUM
-
-    # Playing trick:
-    #  * Lead player submits card (lead suit is determined)
-    #  * Next player submits card (repeat for each)
-    #  * Trick class determines index of winner
-    #  * Previous winner index reassigned
-    #  * Point given to trick winner
-
-    # ^^^ self.prev_winner_idx = None (or 0)
-    # ...
-    # def play_trick(self):
-    #     ...
-
-
-env = SpadesEnv()
-env.play_game()
