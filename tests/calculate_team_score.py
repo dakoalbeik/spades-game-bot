@@ -25,7 +25,7 @@ def calculate_team_round_score(bids, tricks_won):
                 round_scores[curr_score] -= team_target_bids * 10
             else:
                 round_scores[curr_score] += team_target_bids * 10
-                if bids[team_mate] == 0:
+                if bids[team_mate] == nil:
                     round_bags[curr_score] += tricks_won[i] - bids[i]
                 else:
                     round_bags[curr_score] += team_trick_count - team_target_bids
