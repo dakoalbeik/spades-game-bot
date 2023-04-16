@@ -1,6 +1,6 @@
 import random
 
-from agent import Agent
+from src.agents.agent import Agent
 
 
 class RandomAgent(Agent):
@@ -15,4 +15,4 @@ class RandomAgent(Agent):
 
     def bid(self):
         # TODO: write a strategy for bidding
-        return random.randint(1, 5)
+        return random.randint(1, 3)

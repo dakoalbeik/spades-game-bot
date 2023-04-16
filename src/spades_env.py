@@ -1,12 +1,12 @@
 import random
 from typing import List
 
-from agents.greedy_agent import GreedyAgent
-from agents.heuristic_agent import HeuristicAgent
-from agents.random_agent import RandomAgent
-from card_trick import CardTrick
-from deck.card import Suit, Card
-from deck.deck import Deck
+from src.agents.greedy_agent import GreedyAgent
+from src.agents.heuristic_agent import HeuristicAgent
+from src.agents.random_agent import RandomAgent
+from src.card import Suit, Card
+from src.card_trick import CardTrick
+from src.deck import Deck
 
 
 class SpadesEnv:
@@ -104,15 +104,16 @@ class SpadesEnv:
                 self.bags[i] += round_bags[i]
 
                 if self.bags[i] >= SpadesEnv.MAX_BAGS:
-                    self.scores -= SpadesEnv.MAX_BAGS * SpadesEnv.TRICK_WORTH
-                    self.bags -= SpadesEnv.MAX_BAGS
+                    self.scores[i] -= SpadesEnv.MAX_BAGS * SpadesEnv.TRICK_WORTH
+                    self.bags[i] -= SpadesEnv.MAX_BAGS
         else:
             self.calculate_solo_round_score()
 
     def check_game_over(self):
-        team1 = self.scores[0] + self.scores[2]
-        team2 = self.scores[1] + self.scores[3]
-        self.game_over = team1 >= SpadesEnv.WINNING_SCORE or team2 >= SpadesEnv.WINNING_SCORE
+        if SpadesEnv.TEAMS:
+            self.game_over = self.scores[0] >= SpadesEnv.WINNING_SCORE or self.scores[1] >= SpadesEnv.WINNING_SCORE
+        else:
+            pass
 
     def play_game(self):
         self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
@@ -122,6 +123,7 @@ class SpadesEnv:
             self.collect_scores()
             self.increment_bidder()
             self.check_game_over()
+            print(self.scores)
 
         print(self.scores)
 
@@ -137,7 +139,7 @@ class SpadesEnv:
         self.trick.reset()
         for i in range(SpadesEnv.PLAYERS_NUM):
             self.play_card((self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM)
-        self.previous_trick_winner = self.trick.determine_winner()
+        self.previous_trick_winner = self.trick.determine_winner(self.previous_trick_winner)
         self.tricks_won[self.previous_trick_winner] += 1
 
     def play_card(self, player_idx):

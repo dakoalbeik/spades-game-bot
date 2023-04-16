@@ -1,31 +1,37 @@
-from card import Card
 import random
+
+from src.card import Rank, Suit, Card
 
 
 class Deck:
     def __init__(self):
         self.cards = []
-        self.create_cards()
-        self.shuffle_deck()
+        self.set_full_deck()
+        self.shuffle()
 
-    def create_cards(self):
-        for value in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]:
-            for suit in ['c', 'd', 'h', 's']:
-                self.cards.append(Card(value, suit))
+    def set_full_deck(self):
+        for suit in Suit:
+            for rank in Rank:
+                card = Card(rank, suit)
+                self.cards.append(card)
 
-    def display_cards(self):
+    def __repr__(self):
+        string = ''
         for card in self.cards:
-            card.show_card()
+            string += card.__repr__() + " "
+
+        return string
+
+    def shuffle(self):
+        random.shuffle(self.cards)
 
     def draw_card(self):
         return self.cards.pop()
 
+    def add_card(self, card):
+        self.cards.append(card)
+
     def reset(self):
         self.cards.clear()
-        self.create_cards()
-        self.shuffle_deck()
-
-    def shuffle_deck(self):
-        for i in range(len(self.cards) - 1, 0, -1):
-            r = random.randint(0, i)
-            self.cards[i], self.cards[r] = self.cards[r], self.cards[i]
+        self.set_full_deck()
+        self.shuffle()

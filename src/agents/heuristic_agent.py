@@ -1,6 +1,6 @@
 import random
 
-from agent import Agent
+from src.agents.agent import Agent
 
 
 class HeuristicAgent(Agent):
