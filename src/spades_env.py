@@ -172,7 +172,7 @@ class SpadesEnv:
         self.trick.accept_card(played_card)
         self.deck.add_card(played_card)
         self.hands[player_idx].remove(played_card)
-        if played_card.suit.value == Suit.SPADES:
+        if played_card.suit == Suit.SPADES:
             self.spades_broken = True
         self.update_gui()
 

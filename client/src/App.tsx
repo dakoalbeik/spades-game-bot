@@ -1,23 +1,9 @@
 import './App.css'
 import {useEffect, useState} from "react";
 import socket from './socket'
+import CardComponent, {Card} from './components/card/card';
+import TrickComponent from "./components/trick/trick";
 
-const SPADES = "♠"
-const HEARTS = "♥"
-const CLUBS = "♣"
-const DIAMONDS = "♦"
-
-const ORDER = {
-    11: "J",
-    12: "Q",
-    13: "K",
-    14: "A"
-}
-
-interface Card {
-    suit: string,
-    rank: number
-}
 
 interface GameState {
     scores: number[];
@@ -52,21 +38,17 @@ function App() {
     }, [])
 
 
-    const getRank = (rank: number) => {
-        // @ts-ignore
-        return ORDER[rank] || rank
-    }
-
-
     return (
         <div className="App">
             {state.hands.map(hand => (
                 <div className={'hand'}>
                     {hand.map(({suit, rank}) => (
-                        <p className={`card ${suit === HEARTS || suit === DIAMONDS ? "red" : "black"}`}>{getRank(rank)}{suit}</p>
+                        <CardComponent suit={suit} rank={rank}/>
                     ))}
                 </div>
             ))}
+            <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}/>
+
         </div>
 
     )
