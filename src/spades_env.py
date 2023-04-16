@@ -9,6 +9,13 @@ from src.card_trick import CardTrick
 from src.deck import Deck
 
 
+def _print(msg, p=True):
+    if not p:
+        return
+    else:
+        print(msg)
+
+
 class SpadesEnv:
     MAX_BAGS = 10
     TRICK_WORTH = 10
@@ -124,8 +131,6 @@ class SpadesEnv:
             self.increment_bidder()
             self.check_game_over()
             print(self.scores)
-
-        print(self.scores)
 
     def play_round(self):
         self.deal_cards()

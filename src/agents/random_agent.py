@@ -15,4 +15,4 @@ class RandomAgent(Agent):
 
     def bid(self):
         # TODO: write a strategy for bidding
-        return random.randint(1, 3)
+        return random.randint(1, 4)
