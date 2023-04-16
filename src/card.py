@@ -44,4 +44,5 @@ class Card:
             suit_color = "\033[30m"  # Black
         return f"{rank_symbols.get(rank_value, rank_value)}{suit_color}{suit_symbol}\033[0m"
 
-
+    def __json__(self):
+        return {"rank": self.rank.value, "suit": self.suit.value}

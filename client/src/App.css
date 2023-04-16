@@ -1,0 +1,55 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    background: lightblue;
+}
+
+.hand {
+    position: absolute;
+    display: flex;
+    width: fit-content;
+    background-color: #fff;
+    border: 1px solid orange;
+}
+
+.hand:nth-child(1) {
+    bottom: 0;
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.hand:nth-child(2) {
+    left: 0;
+    transform: rotate(90deg);
+
+}
+
+.hand:nth-child(3) {
+    top: 0;
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.hand:nth-child(4) {
+    right: 0;
+    transform: rotate(-90deg);
+
+}
+
+
+.card {
+    width: 50px;
+    aspect-ratio: 2.5 / 3.5;
+    border-radius: .2rem;
+    color: black;
+    outline: 1px solid grey;
+}
+
+.card.red {
+    color: red;
+}

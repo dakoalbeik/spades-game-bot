@@ -1,4 +1,5 @@
 import random
+import time
 from typing import List
 
 from src.agents.greedy_agent import GreedyAgent
@@ -26,7 +27,7 @@ class SpadesEnv:
     TRICKS_COUNT = 13
     NIL = 0
 
-    def __init__(self, teams=True, max_score=500, agents_types=None):
+    def __init__(self, teams=True, max_score=500, agents_types=None, emit=None):
         SpadesEnv.TEAMS = teams
         SpadesEnv.WINNING_SCORE = max_score
         self.game_over = False
@@ -41,8 +42,23 @@ class SpadesEnv:
         self.previous_trick_winner = 0
         self.spades_broken = False
         self.agents = []
-        self.hands = [[]] * SpadesEnv.PLAYERS_NUM
+        self.hands = [[], [], [], []]
         self.init_agents(agents_types)
+        self.emit = emit
+
+    def update_gui(self, duration=2.5):
+        if self.emit:
+            self.emit({
+                "scores": self.scores,
+                "bags": self.bags,
+                "trick": [card.__json__() for card in self.trick.cards],
+                "bids": self.bids,
+                "tricks_won": self.tricks_won,
+                "spades_broken": self.spades_broken,
+                "hands": [[card.__json__() for card in hand] for hand in self.hands],
+            })
+            print("update_gui")
+            time.sleep(duration)
 
     def init_agents(self, agents_types):
         if agents_types is None:  # Default to RandomAgent
@@ -123,6 +139,7 @@ class SpadesEnv:
             pass
 
     def play_game(self):
+        print("start game")
         self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
         while not self.game_over:
             self.play_round()
@@ -130,15 +147,18 @@ class SpadesEnv:
             self.collect_scores()
             self.increment_bidder()
             self.check_game_over()
+            self.update_gui()
             print(self.scores)
 
     def play_round(self):
         self.deal_cards()
         self.collect_bids()
         self.tricks_won = [0] * 4
+        self.update_gui()
         self.previous_trick_winner = self.leading_bidder_idx
         for trick in range(SpadesEnv.TRICKS_COUNT):
             self.play_trick()
+            self.update_gui()
 
     def play_trick(self):
         self.trick.reset()
@@ -152,8 +172,10 @@ class SpadesEnv:
         played_card = self.agents[player_idx].select_card(valid_cards)
         self.trick.accept_card(played_card)
         self.deck.add_card(played_card)
+        self.hands[player_idx].remove(played_card)
         if played_card.suit.value == Suit.SPADES:
             self.spades_broken = True
+        self.update_gui()
 
     def get_valid_cards(self, player_index: int) -> List[Card]:
         """

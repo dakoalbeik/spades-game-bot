@@ -1,5 +1,3 @@
-import os
-import sys
 import unittest
 
 # order of these two matter
