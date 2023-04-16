@@ -57,7 +57,6 @@ class SpadesEnv:
                 "spades_broken": self.spades_broken,
                 "hands": [[card.__json__() for card in hand] for hand in self.hands],
             })
-            print("update_gui")
             time.sleep(duration)
 
     def init_agents(self, agents_types):
