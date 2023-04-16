@@ -46,7 +46,7 @@ class SpadesEnv:
         self.init_agents(agents_types)
         self.emit = emit
 
-    def update_gui(self, duration=2.5):
+    def update_gui(self, duration=1):
         if self.emit:
             self.emit({
                 "scores": self.scores,

@@ -4,6 +4,7 @@ import socket from './socket'
 import {Card} from './components/card/card';
 import TrickComponent from "./components/trick/trick";
 import HandComponent from "./components/hand/hand";
+import ScoreBoardComponent from "./components/score-board/scoreBoard";
 
 
 interface GameState {
@@ -45,7 +46,7 @@ function App() {
                 <HandComponent hand={hand} bid={state.bids[i]} tricksWon={state.tricks_won[i]}/>
             ))}
             <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}/>
-
+            <ScoreBoardComponent scores={state.scores} bags={state.bags}/>
         </div>
 
     )
