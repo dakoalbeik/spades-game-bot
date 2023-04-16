@@ -10,48 +10,6 @@ body {
     overflow: hidden;
 }
 
-.hand {
-    position: absolute;
-    display: flex;
-    width: fit-content;
-    background-color: #fff;
-    border: 1px solid orange;
-}
-
-.hand:nth-child(1) {
-    bottom: 0;
-    right: 50%;
-    transform: translateX(50%);
-}
-
-.hand:nth-child(2) {
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    flex-direction: column;
-}
-
-.hand:nth-child(3) {
-    top: 0;
-    right: 50%;
-    transform: translateX(50%);
-}
-
-.hand:nth-child(4) {
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    flex-direction: column;
-}
-
-.hand:nth-child(2) .card {
-    transform: rotate(90deg);
-}
-
-.hand:nth-child(4) .card {
-    transform: rotate(-90deg);
-}
-
 
 .card {
     width: 50px;
@@ -59,6 +17,7 @@ body {
     border-radius: .2rem;
     color: black;
     outline: 1px solid grey;
+    background: mintcream;
 }
 
 .card.red {

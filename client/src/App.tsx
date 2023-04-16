@@ -1,8 +1,9 @@
 import './App.css'
 import {useEffect, useState} from "react";
 import socket from './socket'
-import CardComponent, {Card} from './components/card/card';
+import {Card} from './components/card/card';
 import TrickComponent from "./components/trick/trick";
+import HandComponent from "./components/hand/hand";
 
 
 interface GameState {
@@ -40,12 +41,8 @@ function App() {
 
     return (
         <div className="App">
-            {state.hands.map(hand => (
-                <div className={'hand'}>
-                    {hand.map(({suit, rank}) => (
-                        <CardComponent suit={suit} rank={rank}/>
-                    ))}
-                </div>
+            {state.hands.map((hand, i) => (
+                <HandComponent hand={hand} bid={state.bids[i]} tricksWon={state.tricks_won[i]}/>
             ))}
             <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}/>
 
