@@ -1,9 +1,10 @@
+from random import choice, randint
+from time import sleep
+
 from agent_storage import AgentStorage
 from card_trick import CardTrick
 from deck import Deck
-from random import choice, randint
 from state_array import StateArray
-from time import sleep
 
 
 class Environment:
@@ -25,12 +26,12 @@ class Environment:
         print('Initializing environment . . .')
         sleep(1)
 
-        # Select learning agent and three other agents
+        # Select learning agents and three other agents
         self.select_agents(learner)
         print('Agents selected')
         sleep(1)
 
-        # Select random agent to go first for first round.
+        # Select random agents to go first for first round.
         # Round concludes when 13 tricks are played.
         # As in real life, the player to the dealer's left (i.e., next player in list players) will lead the next round.
         index_of_leading_player = randint(0, 3)
@@ -108,15 +109,24 @@ class Environment:
                 self.scores_current_round[i] -= (self.player_bids[i] * 10)
             else:
                 # 10 points for each bid win plus 1 point for any tricks won in addition to bid
-                self.scores_current_round[i] += ((self.player_bids[i] * 10) + max(0, self.scores_current_round[i]\
-                                                 - self.player_bids[i]))
+                self.scores_current_round[i] += ((self.player_bids[i] * 10) + max(0, self.scores_current_round[i] \
+                                                                                  - self.player_bids[i]))
+
+    # Check for each individual:
+    #   If they bid more than they caught (bids > won): Deduct from score (bids * 10)
+    #   Else (bids <= won): Add to score (bids * 10) + MAX(0, (won - bid))
 
     def calculate_team_score(self):
         for i in range(2):
-            if (self.player_bids[i] + self.player_bids[i + 2]) > (self.player_tricks_won[i] + self.player_tricks_won[i + 2]):
+            if (self.player_bids[i] + self.player_bids[i + 2]) > (
+                    self.player_tricks_won[i] + self.player_tricks_won[i + 2]):
                 self.team_scores_current_round[i] -= ((self.player_bids[i] + self.player_bids[i + 2]) * 10)
             else:
-                self.team_scores_current_round[i] += ((self.player_bids[i] + self.player_bids[i + 2]) * 10) + max(0, (self.scores_current_round[i] + self.scores_current_round[i + 2] - self.player_bids[i] - self.player_bids[i]))
+                self.team_scores_current_round[i] += ((self.player_bids[i] + self.player_bids[i + 2]) * 10) + max(0, (
+                        self.scores_current_round[i] + self.scores_current_round[i + 2] - self.player_bids[i] -
+                        self.player_bids[i]))
+
+    # Check for each team (indiv0 + indiv2 versus indiv1 + indiv3)
 
     def generate_starting_hands(self, card_deck):
         for i in range(len(self.players)):

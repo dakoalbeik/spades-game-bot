@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    background: lightblue;
+    overflow: hidden;
+}
+
+
+.card {
+    width: 50px;
+    aspect-ratio: 2.5 / 3.5;
+    border-radius: .2rem;
+    color: black;
+    outline: 1px solid grey;
+    background: mintcream;
+}
+
+.card.red {
+    color: red;
+}
