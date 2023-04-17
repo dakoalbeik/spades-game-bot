@@ -10,7 +10,7 @@
 }
 
 .hand .hand-cards.trick-winner {
-    outline: 3px solid blue;
+    outline: 2px solid blue;
 }
 
 .hand:nth-child(even) .hand-cards {

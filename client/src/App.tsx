@@ -48,7 +48,8 @@ function App() {
                 <HandComponent hand={hand} bid={state.bids[i]} tricksWon={state.tricks_won[i]}
                                trickWinner={state.previous_trick_winner === i}/>
             ))}
-            <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}/>
+            <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}
+                            trickWinner={state.previous_trick_winner}/>
             <ScoreBoardComponent scores={state.scores} bags={state.bags}/>
         </div>
 
