@@ -9,6 +9,10 @@
     display: flex;
 }
 
+.hand .hand-cards.trick-winner {
+    outline: 3px solid blue;
+}
+
 .hand:nth-child(even) .hand-cards {
     flex-direction: column;
 }

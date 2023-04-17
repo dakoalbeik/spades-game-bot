@@ -46,7 +46,7 @@ class SpadesEnv:
         self.init_agents(agents_types)
         self.emit = emit
 
-    def update_gui(self, duration=1):
+    def update_gui(self, duration=2):
         if self.emit:
             self.emit({
                 "scores": self.scores,
@@ -56,6 +56,7 @@ class SpadesEnv:
                 "tricks_won": self.tricks_won,
                 "spades_broken": self.spades_broken,
                 "hands": [[card.__json__() for card in hand] for hand in self.hands],
+                "previous_trick_winner": self.previous_trick_winner
             })
             time.sleep(duration)
 
@@ -142,7 +143,6 @@ class SpadesEnv:
         self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
         while not self.game_over:
             self.play_round()
-            self.spades_broken = False
             self.collect_scores()
             self.increment_bidder()
             self.check_game_over()
@@ -152,12 +152,13 @@ class SpadesEnv:
     def play_round(self):
         self.deal_cards()
         self.collect_bids()
-        self.tricks_won = [0] * 4
         self.update_gui()
         self.previous_trick_winner = self.leading_bidder_idx
         for trick in range(SpadesEnv.TRICKS_COUNT):
             self.play_trick()
             self.update_gui()
+        self.spades_broken = False
+        self.tricks_won = [0] * 4
 
     def play_trick(self):
         self.trick.reset()
