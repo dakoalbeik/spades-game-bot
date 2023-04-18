@@ -1,0 +1,32 @@
+{
+  "hash": "323999e8",
+  "browserHash": "b1e8518e",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "8e4a9b40",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "455cb6a7",
+      "needsInterop": true
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "7cf156d0",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-2OSTMQTC": {
+      "file": "chunk-2OSTMQTC.js"
+    },
+    "chunk-FAW2VN4A": {
+      "file": "chunk-FAW2VN4A.js"
+    }
+  }
+}
