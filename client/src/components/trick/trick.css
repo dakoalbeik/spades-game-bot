@@ -22,3 +22,31 @@
 .spades-broken.broken {
     display: block;
 }
+
+.trick > * {
+    position: absolute;
+}
+
+.trick .trick-card0 {
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.trick .trick-card1 {
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.trick .trick-card2 {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.trick .trick-card3 {
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+}

@@ -10,13 +10,6 @@ from src.card_trick import CardTrick
 from src.deck import Deck
 
 
-def _print(msg, p=True):
-    if not p:
-        return
-    else:
-        print(msg)
-
-
 class SpadesEnv:
     MAX_BAGS = 10
     TRICK_WORTH = 10
@@ -56,6 +49,7 @@ class SpadesEnv:
                 "tricks_won": self.tricks_won,
                 "spades_broken": self.spades_broken,
                 "hands": [[card.__json__() for card in hand] for hand in self.hands],
+                "previous_trick_winner": self.previous_trick_winner
             })
             time.sleep(duration)
 
@@ -142,7 +136,6 @@ class SpadesEnv:
         self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
         while not self.game_over:
             self.play_round()
-            self.spades_broken = False
             self.collect_scores()
             self.increment_bidder()
             self.check_game_over()
@@ -152,19 +145,20 @@ class SpadesEnv:
     def play_round(self):
         self.deal_cards()
         self.collect_bids()
-        self.tricks_won = [0] * 4
-        self.update_gui()
         self.previous_trick_winner = self.leading_bidder_idx
+        self.update_gui()
         for trick in range(SpadesEnv.TRICKS_COUNT):
             self.play_trick()
             self.update_gui()
+        self.spades_broken = False
+        self.tricks_won = [0] * 4
 
     def play_trick(self):
-        self.trick.reset()
         for i in range(SpadesEnv.PLAYERS_NUM):
             self.play_card((self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM)
         self.previous_trick_winner = self.trick.determine_winner(self.previous_trick_winner)
         self.tricks_won[self.previous_trick_winner] += 1
+        self.trick.reset()
 
     def play_card(self, player_idx):
         valid_cards = self.get_valid_cards(player_idx)
@@ -193,7 +187,7 @@ class SpadesEnv:
 
         # otherwise, if the player is out of the suit or spades are broken
         # or the player only has spades, allow any move
-        return player_hand if not leading_suit or self.spades_broken or all(
+        return player_hand if leading_suit or self.spades_broken or all(
             card.suit == Suit.SPADES for card in player_hand) else [card for card in player_hand if
                                                                     card.suit != Suit.SPADES]
 

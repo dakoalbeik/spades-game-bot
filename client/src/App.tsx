@@ -15,6 +15,7 @@ interface GameState {
     tricks_won: number[];
     spades_broken: boolean;
     hands: Card[][];
+    previous_trick_winner: number
 }
 
 const initialState: GameState = {
@@ -25,6 +26,7 @@ const initialState: GameState = {
     tricks_won: [0, 0, 0, 0],
     spades_broken: false,
     hands: [[], [], [], []],
+    previous_trick_winner: 0
 };
 
 function App() {
@@ -43,9 +45,11 @@ function App() {
     return (
         <div className="App">
             {state.hands.map((hand, i) => (
-                <HandComponent hand={hand} bid={state.bids[i]} tricksWon={state.tricks_won[i]}/>
+                <HandComponent hand={hand} bid={state.bids[i]} tricksWon={state.tricks_won[i]}
+                               trickWinner={state.previous_trick_winner === i}/>
             ))}
-            <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}/>
+            <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}
+                            trickWinner={state.previous_trick_winner}/>
             <ScoreBoardComponent scores={state.scores} bags={state.bags}/>
         </div>
 

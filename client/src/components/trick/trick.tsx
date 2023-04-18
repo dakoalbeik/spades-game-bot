@@ -4,14 +4,17 @@ import './trick.css'
 
 interface TrickComponentProps {
     trick: Card[];
-    spadesBroken: boolean
+    spadesBroken: boolean,
+    trickWinner: number
 }
 
-function TrickComponent({trick, spadesBroken}: TrickComponentProps) {
+function TrickComponent({trick, spadesBroken, trickWinner}: TrickComponentProps) {
     return (
         <div className={"trick"}>
-            {trick.map(({suit, rank}) => (
-                <CardComponent suit={suit} rank={rank}/>
+            {trick.map(({suit, rank}, i) => (
+                <div className={`trick-card${(i + trickWinner) % 4}`}>
+                    <CardComponent suit={suit} rank={rank}/>
+                </div>
             ))}
             <div className={`spades-broken ${spadesBroken ? "broken" : ""}`}>{SPADES}</div>
         </div>
