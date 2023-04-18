@@ -39,7 +39,7 @@ class SpadesEnv:
         self.init_agents(agents_types)
         self.emit = emit
 
-    def update_gui(self, duration=1):
+    def update_gui(self, duration=0.5):
         if self.emit:
             self.emit({
                 "scores": self.scores,
@@ -137,6 +137,7 @@ class SpadesEnv:
         while not self.game_over:
             self.play_round()
             self.collect_scores()
+            self.tricks_won = [0] * 4
             self.increment_bidder()
             self.check_game_over()
             self.update_gui()
@@ -151,7 +152,6 @@ class SpadesEnv:
             self.play_trick()
             self.update_gui()
         self.spades_broken = False
-        self.tricks_won = [0] * 4
 
     def play_trick(self):
         for i in range(SpadesEnv.PLAYERS_NUM):

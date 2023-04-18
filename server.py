@@ -7,7 +7,7 @@ from src.spades_env import SpadesEnv
 
 eventlet.monkey_patch()
 
-sio = socketio.Server(cors_allowed_origins='http://127.0.0.1:5173')
+sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
 
 games = {}
