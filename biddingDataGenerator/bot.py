@@ -108,6 +108,9 @@ class Bot:
     def play_card(self, card_index):
         return self.hand.pop(card_index)
 
+    def get_card(self, index):
+        return self.hand[index]
+
     def receive_cards(self, cards):
         self.hand.extend(cards)
         self.hand.sort(key=lambda card: (Card.suits.index(card.suit), Card.values.index(card.value)))

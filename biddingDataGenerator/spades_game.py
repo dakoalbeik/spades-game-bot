@@ -1,3 +1,7 @@
+import os
+import time
+from typing import List
+
 from bot import Bot
 from card import Card
 from copy import deepcopy
@@ -13,6 +17,7 @@ class SpadesGame:
         self.current_actor = 0
         self.current_dealer = 0
         self.trick_history = []
+        self.cards_count = 0
 
     def deal_cards(self):
         deck = Deck()
@@ -47,18 +52,44 @@ class SpadesGame:
         spades_broken = any(card.suit == "s" for trick in self.trick_history for card in trick)
 
         # Create deep copies of every agent's hands to simulate all remaining cards in play
-        possible_cards = deepcopy(self.players[0].hand) + deepcopy(self.players[1].hand) +\
+        possible_cards = deepcopy(self.players[0].hand) + deepcopy(self.players[1].hand) + \
                          deepcopy(self.players[2].hand) + deepcopy(self.players[3].hand)
 
         i = self.current_actor
         for _ in range(4):
             chosen_card_index = self.players[i].choose_card(cards_played, spades_broken, possible_cards)
-            cards_played.append(self.players[i].play_card(chosen_card_index))
+            # card = self.players[i].get_card(chosen_card_index)
+            # valid_cards = SpadesGame.get_valid_cards(self.players[i].hand, cards_played, spades_broken)
+            # assert len(valid_cards) > 0
+            # assert card in valid_cards
+            # self.cards_count += 1
+            # os.system('cls')
+            # print(str(self.cards_count) + "/1000000")
+
+            card = self.players[i].play_card(chosen_card_index)
+            cards_played.append(card)
             i = (i + 1) % 4
         trick_winner = self.determine_trick_winner(cards_played)
         self.current_actor = trick_winner
         self.trick_history.append(cards_played)
         return trick_winner
+
+    @staticmethod
+    def get_valid_cards(hand: List[Card], trick: List[Card], spades_broken: bool) -> List[Card]:
+
+        leading_suit = trick[0].suit if trick else None
+
+        # if there's a leading suit, and the player has it, then only this suit can be played
+        if leading_suit:
+            can_play_leading_suit = any(card.suit == leading_suit for card in hand)
+            if can_play_leading_suit:
+                return [card for card in hand if card.suit == leading_suit]
+
+        # otherwise, if the player is out of the suit or spades are broken
+        # or the player only has spades, allow any move
+        return hand if leading_suit or spades_broken or all(
+            card.suit == 's' for card in hand) else [card for card in hand if
+                                                     card.suit != 's']
 
     def play_round(self):
         self.deal_cards()

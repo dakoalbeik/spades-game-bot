@@ -8,5 +8,8 @@ class Card:
         self.value = value
         self.suit = suit
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
         return f"{self.value}{self.suit}"
