@@ -1,5 +1,7 @@
 import os
+import string
 import time
+import random
 from typing import List
 
 from bot import Bot
@@ -9,15 +11,33 @@ from deck import Deck
 
 
 class SpadesGame:
+    MAX_ROW_CHAR_COUNT = 54
+    MAX_CACHE_SIZE = MAX_ROW_CHAR_COUNT * 10_000
+    MAX_HANDS_PER_FILE = 1_000_000
+
     def __init__(self, player_names):
         if len(player_names) != 4:
             raise ValueError("Spades requires exactly 4 players.")
+
+        self.output_filename = ""
+        self.set_random_filename()
+        self.data_cache = ""
+        self.hands_saved_count = 0
 
         self.players = [Bot(name) for name in player_names]
         self.current_actor = 0
         self.current_dealer = 0
         self.trick_history = []
         self.cards_count = 0
+
+    def set_random_filename(self, name_length=20, data_dir='data'):
+        # Create the data directory if it doesn't already exist
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+
+        # Generate a random filename and set it as the output filename
+        file_name = ''.join(random.choice(string.ascii_lowercase) for _ in range(name_length)) + '.txt'
+        self.output_filename = os.path.join(data_dir, file_name)
 
     def deal_cards(self):
         deck = Deck()
@@ -41,11 +61,23 @@ class SpadesGame:
         winner_index = (self.current_actor + trick.index(highest_card)) % 4
         return winner_index
 
-    def output_hands_and_tricks(self, starting_hands, tricks_taken, output_file):
-        with open(output_file, "a") as f:
-            for hand, tricks in zip(starting_hands, tricks_taken):
-                hand_string = ", ".join(str(card) for card in hand)
-                f.write(f"{hand_string}|{tricks}\n")
+    def save_hands_and_tricks(self, starting_hands, tricks_taken):
+
+        for hand, tricks in zip(starting_hands, tricks_taken):
+            hand_string = ", ".join(str(card) for card in hand)
+            self.data_cache += f"{hand_string}|{tricks}\n"
+            self.hands_saved_count += 1
+
+        if len(self.data_cache) >= SpadesGame.MAX_CACHE_SIZE:
+            with open(self.output_filename, "a") as f:
+                f.write(self.data_cache)
+            self.data_cache = ""
+            print(f"Saved data and emptied cache")
+
+        if self.hands_saved_count >= SpadesGame.MAX_HANDS_PER_FILE:
+            self.set_random_filename()
+            self.hands_saved_count = 0
+            print("File is full, new file name is created")
 
     def play_trick(self):
         cards_played = []
@@ -108,7 +140,7 @@ class SpadesGame:
             tricks_taken[trick_winner] += 1
 
         # Output hands and tricks to a pipe-delimited text file
-        self.output_hands_and_tricks(starting_hands, tricks_taken, output_file="output.txt")
+        self.save_hands_and_tricks(starting_hands, tricks_taken)
 
         self.current_dealer = (self.current_dealer + 1) % 4
         self.current_actor = self.current_dealer
