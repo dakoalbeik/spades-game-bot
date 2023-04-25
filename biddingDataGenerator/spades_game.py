@@ -72,7 +72,6 @@ class SpadesGame:
             with open(self.output_filename, "a") as f:
                 f.write(self.data_cache)
             self.data_cache = ""
-            print(f"Saved data and emptied cache")
 
         if self.hands_saved_count >= SpadesGame.MAX_HANDS_PER_FILE:
             self.set_random_filename()
