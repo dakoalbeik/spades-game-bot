@@ -6,7 +6,6 @@ import gym
 from gym import error, spaces, utils
 from gym.core import RenderFrame, ActType, ObsType
 from gym.utils import seeding
-
 from src.agents.greedy_agent import GreedyAgent
 from src.agents.heuristic_agent import HeuristicAgent
 from src.agents.random_agent import RandomAgent
@@ -35,8 +34,9 @@ class SpadesEnv(gym.Env):
             'hand': spaces.MultiDiscrete([52] * 13),  # The cards in the player's hand
             'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
             'discarded': spaces.MultiDiscrete([52] * 52),  # The cards that have been discarded so far in the game
-            'score': spaces.MultiDiscrete([500] * 2)  # The score of both teams
+            'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
         })
+       
         self.STEP_LIMIT = 10000
         self.sleep_duration = 0
         self.steps = 0
