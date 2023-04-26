@@ -1,11 +1,33 @@
 from enum import Enum
 
 
+#   D C H S
+# 2 0 0 0 0
+# 3 0 0 0 0
+# 4 0 0 0 0
+# 5 0 0 0 0
+# 6 0 0 0 0
+# 7 0 0 0 0
+# 8 0 0 0 0
+# 9 0 0 0 0
+# T 0 0 0 0
+# J 0 0 0 0
+# Q 0 0 0 0
+# K 0 0 0 0
+# A 0 0 0 0
 class Suit(Enum):
-    SPADES = "♠"
-    HEARTS = "♥"
-    CLUBS = "♣"
-    DIAMONDS = "♦"
+    SPADES = 3
+    HEARTS = 2
+    CLUBS = 1
+    DIAMONDS = 0
+
+
+SuitSymbol = {
+    Suit.SPADES: "♠",
+    Suit.HEARTS: "♥",
+    Suit.CLUBS: "♣",
+    Suit.DIAMONDS: "♦"
+}
 
 
 class Rank(Enum):
@@ -46,3 +68,6 @@ class Card:
 
     def __json__(self):
         return {"rank": self.rank.value, "suit": self.suit.value}
+
+    def get_indices(self):
+        return self.rank.value - 2, self.suit.value

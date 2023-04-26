@@ -12,6 +12,7 @@ from src.agents.random_agent import RandomAgent
 from src.card import Suit, Card
 from src.card_trick import CardTrick
 from src.deck import Deck
+import numpy as np
 
 
 class SpadesEnv(gym.Env):
@@ -37,11 +38,11 @@ class SpadesEnv(gym.Env):
         #     'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
         # })
         self.observation_space = spaces.Dict({
-            'trick': spaces.Box(low=0, high=1, shape=(4, 13), dtype=int),  # The cards in the current trick
-            'hand': spaces.Box(low=0, high=1, shape=(4, 13), dtype=int),  # The cards in the player's hand
-            'discarded': spaces.Box(low=0, high=1, shape=(4, 13), dtype=int),  # The cards that have been discarded
-            'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
-            'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
+            'trick': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the current trick
+            # 'hand': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the player's hand
+            # 'discarded': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards that have been discarded
+            # 'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
+            # 'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
         })
 
         self.STEP_LIMIT = 10000
@@ -81,8 +82,47 @@ class SpadesEnv(gym.Env):
             time.sleep(duration)
 
     def reset(self):
-        observation = []
-        return observation
+        self.game_over = False
+        self.rounds_history = []
+        self.scores = [0] * 2
+        self.bags = [0] * 2
+        self.deck = Deck()
+        self.trick = CardTrick()
+        self.bids = [0] * SpadesEnv.PLAYERS_NUM
+        self.tricks_won = [0] * SpadesEnv.PLAYERS_NUM
+        self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
+        self.previous_trick_winner = self.leading_bidder_idx
+        self.spades_broken = False
+        self.hands = [[], [], [], []]
+        return self.get_observation()
+
+    @staticmethod
+    def get_one_hot_encoding(cards):
+        encoding = np.zeros((13, 4), dtype=np.int)
+        for card in cards:
+            encoding[card.get_indices()] = 1
+
+        print(encoding.shape)
+        return encoding
+
+    def get_observation(self):
+        trick = SpadesEnv.get_one_hot_encoding(self.trick.cards)
+        hand = SpadesEnv.get_one_hot_encoding(self.hands[0])
+        discarded = SpadesEnv.get_one_hot_encoding(self.deck.cards)
+
+        # observation = np.concatenate([trick, hand, discarded, [int(self.spades_broken)], self.scores])
+
+        observation = {
+            "trick": trick,
+            # "hand": hand,
+            # "discarded": discarded,
+            # "spades_broken": int(self.spades_broken),
+            # "score": self.scores
+        }
+
+        print(observation)
+        info = {}
+        return observation, info
 
     def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         pass
@@ -94,9 +134,9 @@ class SpadesEnv(gym.Env):
         # TODO: create the observation space
 
         reward = 0
-        done = True
+        done = self.steps > 10000
         info = {}
-        observation = []
+        observation = self.get_observation()
         self.steps += 1
         time.sleep(self.sleep_duration)
 
