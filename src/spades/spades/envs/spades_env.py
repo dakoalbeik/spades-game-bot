@@ -25,6 +25,8 @@ class SpadesEnv(gym.Env):
     TRICKS_COUNT = 13
     NIL = 0
 
+    OBSERVATION_SHAPE = 159
+
     metadata = {'render.modes': ["human"]}
 
     def __init__(self, teams=True, max_score=500, agents_types=None, emit=None):
@@ -39,8 +41,8 @@ class SpadesEnv(gym.Env):
         # })
         self.observation_space = spaces.Dict({
             'trick': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the current trick
-            # 'hand': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the player's hand
-            # 'discarded': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards that have been discarded
+            'hand': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the player's hand
+            'discarded': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards that have been discarded
             # 'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
             # 'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
         })
@@ -81,7 +83,7 @@ class SpadesEnv(gym.Env):
             })
             time.sleep(duration)
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.game_over = False
         self.rounds_history = []
         self.scores = [0] * 2
@@ -94,7 +96,8 @@ class SpadesEnv(gym.Env):
         self.previous_trick_winner = self.leading_bidder_idx
         self.spades_broken = False
         self.hands = [[], [], [], []]
-        return self.get_observation()
+
+        return self._get_observation(), {}
 
     @staticmethod
     def get_one_hot_encoding(cards):
@@ -102,10 +105,9 @@ class SpadesEnv(gym.Env):
         for card in cards:
             encoding[card.get_indices()] = 1
 
-        print(encoding.shape)
         return encoding
 
-    def get_observation(self):
+    def _get_observation(self):
         trick = SpadesEnv.get_one_hot_encoding(self.trick.cards)
         hand = SpadesEnv.get_one_hot_encoding(self.hands[0])
         discarded = SpadesEnv.get_one_hot_encoding(self.deck.cards)
@@ -114,15 +116,13 @@ class SpadesEnv(gym.Env):
 
         observation = {
             "trick": trick,
-            # "hand": hand,
-            # "discarded": discarded,
+            "hand": hand,
+            "discarded": discarded,
             # "spades_broken": int(self.spades_broken),
             # "score": self.scores
         }
 
-        print(observation)
-        info = {}
-        return observation, info
+        return observation
 
     def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         pass
@@ -136,11 +136,11 @@ class SpadesEnv(gym.Env):
         reward = 0
         done = self.steps > 10000
         info = {}
-        observation = self.get_observation()
+        observation = self._get_observation()
         self.steps += 1
         time.sleep(self.sleep_duration)
 
-        return observation, reward, done, info
+        return observation, reward, done, False, info
 
     def init_agents(self, agents_types):
         if agents_types is None:  # Default to RandomAgent

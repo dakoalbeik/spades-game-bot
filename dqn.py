@@ -1,11 +1,19 @@
 import gym
 from keras.layers import Flatten
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
 from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
-from tensorflow.keras.optimizers import Adam
+
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.optimizers import Adam
+
+# from keras_rl.rl.agents.dqn import DQNAgent
+# from keras_rl.rl.memory import SequentialMemory
+# from keras_rl.rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
 
 env = gym.make('spades:spades-v0')
 nb_actions = env.action_space.n
@@ -28,7 +36,7 @@ policy = LinearAnnealedPolicy(EpsGreedyQPolicy(),
                               value_min=.1,
                               value_test=.05,
                               nb_steps=20000)
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
+dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000,
                target_model_update=100, policy=policy)
 dqn.compile(optimizer=Adam(learning_rate=1e-3), metrics=['mae'])
 # # Train the agent
