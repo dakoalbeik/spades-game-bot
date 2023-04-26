@@ -34,4 +34,4 @@ dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmu
                target_model_update=100, policy=policy)
 dqn.compile(optimizer=Adam(learning_rate=1e-3), metrics=['mae'])
 # # Train the agent
-dqn.fit(flattened_env, nb_steps=10000, visualize=False, verbose=2)
+# dqn.fit(flattened_env, nb_steps=10000, visualize=False, verbose=2)

@@ -29,14 +29,21 @@ class SpadesEnv(gym.Env):
     def __init__(self, teams=True, max_score=500, agents_types=None, emit=None):
         # gym specific members
         self.action_space = spaces.Discrete(52)
+        # self.observation_space = spaces.Dict({
+        #     'trick': spaces.MultiDiscrete([52] * 4),  # The cards in the current trick
+        #     'hand': spaces.MultiDiscrete([52] * 13),  # The cards in the player's hand
+        #     'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
+        #     'discarded': spaces.MultiDiscrete([52] * 52),  # The cards that have been discarded so far in the game
+        #     'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
+        # })
         self.observation_space = spaces.Dict({
-            'trick': spaces.MultiDiscrete([52] * 4),  # The cards in the current trick
-            'hand': spaces.MultiDiscrete([52] * 13),  # The cards in the player's hand
+            'trick': spaces.Box(low=0, high=1, shape=(4, 13), dtype=int),  # The cards in the current trick
+            'hand': spaces.Box(low=0, high=1, shape=(4, 13), dtype=int),  # The cards in the player's hand
+            'discarded': spaces.Box(low=0, high=1, shape=(4, 13), dtype=int),  # The cards that have been discarded
             'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
-            'discarded': spaces.MultiDiscrete([52] * 52),  # The cards that have been discarded so far in the game
             'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
         })
-       
+
         self.STEP_LIMIT = 10000
         self.sleep_duration = 0
         self.steps = 0
