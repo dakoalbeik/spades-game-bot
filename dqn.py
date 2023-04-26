@@ -3,17 +3,9 @@ from keras.layers import Flatten
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-from rl.agents.dqn import DQNAgent
-from rl.memory import SequentialMemory
-from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
-
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras.optimizers import Adam
-
-# from keras_rl.rl.agents.dqn import DQNAgent
-# from keras_rl.rl.memory import SequentialMemory
-# from keras_rl.rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
+from keras_rl.agents.dqn import DQNAgent
+from keras_rl.memory import SequentialMemory
+from keras_rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
 
 env = gym.make('spades:spades-v0')
 nb_actions = env.action_space.n
