@@ -6,13 +6,18 @@ from keras.optimizers import Adam
 from keras_rl.agents.dqn import DQNAgent
 from keras_rl.memory import SequentialMemory
 from keras_rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
+import datetime
 
-env = gym.make('spades:spades-v0')
+ENV_NAME = 'spades:spades-v0'
+
+now = datetime.datetime.now()
+formatted_date = now.strftime("%m-%d %H-%M-%S")
+WEIGHTS_FILE_PATH = f'dqn_weights/{formatted_date}/dqn_spades_weights.h5f'
+
+env = gym.make(ENV_NAME)
 nb_actions = env.action_space.n
 
 flattened_env = gym.wrappers.FlattenObservation(env)
-
-weights_fileName = 'test_dqn_spades_weights.h5f'
 
 # Define the agent
 model = Sequential()
@@ -28,8 +33,10 @@ policy = LinearAnnealedPolicy(EpsGreedyQPolicy(),
                               value_min=.1,
                               value_test=.05,
                               nb_steps=20000)
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000,
-               target_model_update=100, policy=policy)
-dqn.compile(optimizer=Adam(learning_rate=1e-3), metrics=['mae'])
-# # Train the agent
-dqn.fit(flattened_env, nb_steps=10000, visualize=False, verbose=2)
+agent = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000,
+                 target_model_update=100, policy=policy)
+agent.compile(optimizer=Adam(learning_rate=1e-3), metrics=['mae'])
+# Train the agent
+agent.fit(flattened_env, nb_steps=10000, visualize=False, verbose=2)
+# Save the weights
+agent.save_weights(filepath=WEIGHTS_FILE_PATH, overwrite=False)
