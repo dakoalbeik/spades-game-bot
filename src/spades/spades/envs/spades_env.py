@@ -1,18 +1,18 @@
 import random
 import time
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Union
 
 import gym
-from gym import error, spaces, utils
-from gym.core import RenderFrame, ActType, ObsType
-from gym.utils import seeding
+import numpy as np
+from gym import spaces
+from gym.core import RenderFrame, ActType
+
 from src.agents.greedy_agent import GreedyAgent
 from src.agents.heuristic_agent import HeuristicAgent
 from src.agents.random_agent import RandomAgent
 from src.card import Suit, Card
 from src.card_trick import CardTrick
 from src.deck import Deck
-import numpy as np
 
 
 class SpadesEnv(gym.Env):
@@ -98,7 +98,7 @@ class SpadesEnv(gym.Env):
 
     @staticmethod
     def get_one_hot_encoding(cards):
-        encoding = np.zeros((13, 4), dtype=np.int)
+        encoding = np.zeros((13, 4), dtype=int)
         for card in cards:
             encoding[card.get_indices()] = 1
 
