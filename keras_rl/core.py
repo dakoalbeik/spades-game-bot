@@ -140,7 +140,7 @@ class Agent:
                     nb_random_start_steps = 0 if nb_max_start_steps == 0 else np.random.randint(nb_max_start_steps)
                     for _ in range(nb_random_start_steps):
                         if start_step_policy is None:
-                            action = env.action_space.sample()
+                            action = env.action_space.sample(env.get_valid_mask())
                         else:
                             action = start_step_policy(observation)
                         if self.processor is not None:
@@ -172,7 +172,7 @@ class Agent:
 
                 # print(observation)
 
-                action = self.forward(observation)
+                action = self.forward(observation, env.get_valid_mask())
                 if self.processor is not None:
                     action = self.processor.process_action(action)
                 reward = np.float32(0)
@@ -409,12 +409,13 @@ class Agent:
         """
         pass
 
-    def forward(self, observation):
+    def forward(self, observation, mask):
         """Takes the an observation from the environment and returns the action to be taken next.
         If the policy is implemented by a neural network, this corresponds to a forward (inference) pass.
 
         # Argument
             observation (object): The current observation from the environment.
+            mask (array): Binary array of valid actions
 
         # Returns
             The next action to be executed in the environment.

@@ -155,22 +155,28 @@ class EpsGreedyQPolicy(Policy):
         super().__init__()
         self.eps = eps
 
-    def select_action(self, q_values):
+    def select_action(self, q_values, mask):
         """Return the selected action
 
         # Arguments
             q_values (np.ndarray): List of the estimations of Q for each action
+            mask (np.ndarray): Mask indicating which actions are valid
 
         # Returns
             Selection action
         """
         assert q_values.ndim == 1
-        nb_actions = q_values.shape[0]
 
+        # Mask out invalid actions
         if np.random.uniform() < self.eps:
-            action = np.random.randint(0, nb_actions)
+            # Select a random valid action
+            valid_actions = np.where(mask == 1)[0]
+            action = np.random.choice(valid_actions)
         else:
-            action = np.argmax(q_values)
+            # Select the action with the highest Q-value among valid actions
+            valid_q_values = np.copy(q_values)
+            valid_q_values[np.where(mask == 0)] = np.NINF
+            action = np.argmax(valid_q_values)
         return action
 
     def get_config(self):

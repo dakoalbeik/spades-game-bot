@@ -24,6 +24,7 @@ class SpadesEnv(gym.Env):
     PLAYERS_NUM = 4
     TRICKS_COUNT = 13
     NIL = 0
+    DQN_AGENT = 0
 
     OBSERVATION_SHAPE = 159
 
@@ -96,6 +97,7 @@ class SpadesEnv(gym.Env):
         self.previous_trick_winner = self.leading_bidder_idx
         self.spades_broken = False
         self.hands = [[], [], [], []]
+        self.deal_cards()
 
         return self._get_observation(), {}
 
@@ -106,6 +108,13 @@ class SpadesEnv(gym.Env):
             encoding[card.get_indices()] = 1
 
         return encoding
+
+    def get_valid_mask(self):
+        valid_cards = self.get_valid_cards(SpadesEnv.DQN_AGENT)
+        mask = np.zeros(52)
+        for card in valid_cards:
+            mask[card.to_action()] = 1
+        return mask
 
     def _get_observation(self):
         trick = SpadesEnv.get_one_hot_encoding(self.trick.cards)
@@ -132,7 +141,7 @@ class SpadesEnv(gym.Env):
         # TODO: determine if game is over
         # TODO: return helpful info about the score and round
         # TODO: create the observation space
-
+        print(action)
         reward = 0
         done = self.steps > 10000
         info = {}

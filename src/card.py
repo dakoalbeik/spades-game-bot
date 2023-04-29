@@ -71,3 +71,6 @@ class Card:
 
     def get_indices(self):
         return self.rank.value - 2, self.suit.value
+
+    def to_action(self):
+        return (self.rank.value - 2) + (13 * self.suit.value)
