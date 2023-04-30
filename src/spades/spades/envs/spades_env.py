@@ -20,6 +20,7 @@ class SpadesEnv(gym.Env):
     TRICK_WORTH = 10
     NIL_WORTH = 100
     WINNING_SCORE = 500
+    LOSING_SCORE = -200
     TEAMS = True
     PLAYERS_NUM = 4
     TRICKS_COUNT = 13
@@ -30,7 +31,7 @@ class SpadesEnv(gym.Env):
 
     metadata = {'render.modes': ["human"]}
 
-    def __init__(self, teams=True, max_score=500, agents_types=None, emit=None):
+    def __init__(self, teams=False, max_score=500, agents_types=None, emit=None):
         # gym specific members
         self.action_space = spaces.Discrete(52)
         self.observation_space = spaces.Dict({
@@ -58,6 +59,7 @@ class SpadesEnv(gym.Env):
         self.leading_bidder_idx = 0
         self.previous_trick_winner = 0
         self.spades_broken = False
+        self.game_winner = None
         self.agents = []
         self.hands = [[], [], [], []]
         self.init_agents(agents_types)
@@ -162,8 +164,6 @@ class SpadesEnv(gym.Env):
         hand = SpadesEnv.get_one_hot_encoding(self.hands[0])
         discarded = SpadesEnv.get_one_hot_encoding(self.deck.cards)
 
-        # observation = np.concatenate([trick, hand, discarded, [int(self.spades_broken)], self.scores])
-
         observation = {
             "trick": trick,
             "hand": hand,
@@ -241,21 +241,25 @@ class SpadesEnv(gym.Env):
     def collect_scores(self):
         if SpadesEnv.TEAMS:
             round_scores, round_bags = self.calculate_team_round_score()
-            for i in range(2):
-                self.scores[i] += round_scores[i]
-                self.bags[i] += round_bags[i]
-
-                if self.bags[i] >= SpadesEnv.MAX_BAGS:
-                    self.scores[i] -= SpadesEnv.MAX_BAGS * SpadesEnv.TRICK_WORTH
-                    self.bags[i] -= SpadesEnv.MAX_BAGS
         else:
-            self.calculate_solo_round_score()
+            round_scores, round_bags = self.calculate_solo_round_score()
+
+        for i in range(SpadesEnv.PLAYERS_NUM if not SpadesEnv.TEAMS else 2):
+            self.scores[i] += round_scores[i]
+            self.bags[i] += round_bags[i]
+
+            if self.bags[i] >= SpadesEnv.MAX_BAGS:
+                self.scores[i] -= SpadesEnv.MAX_BAGS * SpadesEnv.TRICK_WORTH
+                self.bags[i] -= SpadesEnv.MAX_BAGS
 
     def check_game_over(self) -> None:
         if SpadesEnv.TEAMS:
             self.game_over = self.scores[0] >= SpadesEnv.WINNING_SCORE or self.scores[1] >= SpadesEnv.WINNING_SCORE
         else:
-            pass
+            for i, score in enumerate(self.scores):
+                if score >= SpadesEnv.WINNING_SCORE or score <= SpadesEnv.LOSING_SCORE:
+                    self.game_over = True
+                    break
 
     def play_game(self) -> None:
         self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
@@ -317,4 +321,12 @@ class SpadesEnv(gym.Env):
                                                                     card.suit != Suit.SPADES]
 
     def calculate_solo_round_score(self):
-        pass
+        round_scores = [0] * 4
+        round_bags = [0] * 4
+        for i in range(SpadesEnv.PLAYERS_NUM):
+            if self.tricks_won[i] < self.bids[i]:
+                round_scores[i] = self.bids[i] * -10
+            else:
+                round_scores[i] = self.bids[i] * 10
+                round_bags[i] = self.tricks_won[i] - self.bids[i]
+        return round_scores, round_bags
