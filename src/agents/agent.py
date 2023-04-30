@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from src.agents.bidder import determine_bid_number
 
 
 class Agent(ABC):
@@ -9,9 +10,8 @@ class Agent(ABC):
     def select_card(self, valid_cards):
         pass
 
-    @abstractmethod
-    def bid(self):
-        pass
+    def bid(self, cards):
+        return determine_bid_number(cards)
 
     def get_valid_cards(self):
         pass
