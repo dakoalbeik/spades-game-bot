@@ -2,8 +2,7 @@ import threading
 
 import eventlet
 import socketio
-
-from src.spades_env import SpadesEnv
+from dqn import create_dqn, train_dqn
 
 eventlet.monkey_patch()
 
@@ -20,9 +19,11 @@ def send_update(sid, data):
 @sio.event
 def connect(sid, environ):
     print('Client connected ', sid)
-    games[sid] = SpadesEnv(emit=lambda data: send_update(sid, data))
+    # games[sid] = SpadesEnv()
+    env, agent = create_dqn(emit=lambda data: send_update(sid, data))
+    # game_thread = threading.Thread(target=games[sid].play_game)
     # Create a new thread to run the game simulation
-    game_thread = threading.Thread(target=games[sid].play_game)
+    game_thread = threading.Thread(target=train_dqn, args=[env, agent])
     game_thread.start()
     sio.emit("msg", "game created on connection")
 

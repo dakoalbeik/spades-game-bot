@@ -65,6 +65,9 @@ class SpadesEnv(gym.Env):
         self.init_agents(agents_types)
         self.emit = emit
 
+    def set_emit(self, emit):
+        self.emit = emit
+
     def update_gui(self, duration=0.5):
         if self.emit:
             self.emit({
@@ -112,6 +115,7 @@ class SpadesEnv(gym.Env):
         self.hands[SpadesEnv.DQN_AGENT] = [card for card in self.hands[SpadesEnv.DQN_AGENT] if not card == played_card]
         if played_card.suit == Suit.SPADES:
             self.spades_broken = True
+        self.update_gui()
         # have remaining players play if any
         for i in range(SpadesEnv.PLAYERS_NUM - len(self.trick.cards)):
             self.play_card(i + 1)
@@ -119,16 +123,19 @@ class SpadesEnv(gym.Env):
         self.previous_trick_winner = self.trick.determine_winner(self.previous_trick_winner)
         self.tricks_won[self.previous_trick_winner] += 1
         self.trick.reset()
+        self.update_gui()
         # TODO: add something to the reward here depending on how the agent played in the trick
 
         # check if round is over
         if len(self.hands[SpadesEnv.DQN_AGENT]) == 0:
             print("-" * 100)
+            self.collect_scores()
             self.deal_cards()
             self.tricks_won = [0] * SpadesEnv.PLAYERS_NUM
             self.increment_bidder()
             self.collect_bids()
             self.spades_broken = False
+            self.update_gui()
         else:
             # have other players play until it's DQN's turn
             if self.previous_trick_winner != SpadesEnv.DQN_AGENT:

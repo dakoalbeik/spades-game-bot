@@ -218,7 +218,7 @@ class Agent:
                     # resetting the environment. We need to pass in `terminal=False` here since
                     # the *next* state, that is the state of the newly reset environment, is
                     # always non-terminal by convention.
-                    self.forward(observation)
+                    self.forward(observation, env.get_valid_mask())
                     self.backward(0., terminal=False)
 
                     # This episode is finished, report and reset.

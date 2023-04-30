@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface Card {
-    suit: string,
+    suit: number,
     rank: number
 }
 
@@ -9,6 +9,14 @@ export const SPADES = "♠"
 export const HEARTS = "♥"
 export const CLUBS = "♣"
 export const DIAMONDS = "♦"
+
+
+const SUIT_SYMBOL = {
+    0: DIAMONDS,
+    1: CLUBS,
+    2: HEARTS,
+    3: SPADES
+}
 
 const ORDER = {
     11: "J",
@@ -22,9 +30,14 @@ const getRank = (rank: number) => {
     return ORDER[rank] || rank
 }
 
+const getSuit = (suit: number) => {
+    // @ts-ignore
+    return SUIT_SYMBOL[suit]
+}
+
 function CardComponent({suit, rank}: Card) {
     return (
-        <p className={`card ${suit === HEARTS || suit === DIAMONDS ? "red" : "black"}`}>{getRank(rank)}{suit}</p>
+        <p className={`card ${suit === 2 || suit === 0 ? "red" : "black"}`}>{getRank(rank)}{getSuit(suit)}</p>
     );
 }
 
