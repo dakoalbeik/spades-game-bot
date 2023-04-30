@@ -1,5 +1,6 @@
 import random
 import time
+from copy import deepcopy
 from typing import List, Optional, Union
 
 import gym
@@ -186,7 +187,7 @@ class SpadesEnv(gym.Env):
 
     def init_agents(self, agents_types):
         if agents_types is None:  # Default to RandomAgent
-            agents_types = [RandomAgent.NAME] * SpadesEnv.PLAYERS_NUM
+            agents_types = [HeuristicAgent.NAME] * SpadesEnv.PLAYERS_NUM
         elif isinstance(agents_types, str):  # Single agent type
             agents_types = [agents_types] * SpadesEnv.PLAYERS_NUM
         elif len(agents_types) != SpadesEnv.PLAYERS_NUM:
@@ -298,7 +299,16 @@ class SpadesEnv(gym.Env):
 
     def play_card(self, player_idx):
         valid_cards = self.get_valid_cards(player_idx)
-        played_card = self.agents[player_idx].select_card(valid_cards)
+        if self.agents[player_idx].name == HeuristicAgent.NAME:
+            possible_cards = deepcopy(self.hands[0]) + deepcopy(self.hands[1]) + \
+                             deepcopy(self.hands[2]) + deepcopy(self.hands[3])
+            played_card = self.agents[player_idx].select_card(valid_cards,
+                                                              hand=self.hands[player_idx],
+                                                              possible_cards=possible_cards,
+                                                              trick=self.trick.cards,
+                                                              spades_broken=self.spades_broken)
+        else:
+            played_card = self.agents[player_idx].select_card(valid_cards)
         self.trick.accept_card(played_card)
         self.deck.add_card(played_card)
         self.hands[player_idx].remove(played_card)

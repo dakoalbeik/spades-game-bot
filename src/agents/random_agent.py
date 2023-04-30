@@ -8,7 +8,7 @@ class RandomAgent(Agent):
 
     def __init__(self):
         super().__init__()
+        self.name = RandomAgent.NAME
 
-    def select_card(self, valid_cards):
-        # TODO: write a strategy for selecting cards
+    def select_card(self, valid_cards, **kwargs):
         return random.choice(valid_cards)

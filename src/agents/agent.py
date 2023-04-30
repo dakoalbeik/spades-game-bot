@@ -7,11 +7,8 @@ class Agent(ABC):
         self.name = ""
 
     @abstractmethod
-    def select_card(self, valid_cards):
+    def select_card(self, valid_cards, **kwargs):
         pass
 
     def bid(self, cards):
         return determine_bid_number(cards)
-
-    def get_valid_cards(self):
-        pass
