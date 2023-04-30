@@ -33,13 +33,6 @@ class SpadesEnv(gym.Env):
     def __init__(self, teams=True, max_score=500, agents_types=None, emit=None):
         # gym specific members
         self.action_space = spaces.Discrete(52)
-        # self.observation_space = spaces.Dict({
-        #     'trick': spaces.MultiDiscrete([52] * 4),  # The cards in the current trick
-        #     'hand': spaces.MultiDiscrete([52] * 13),  # The cards in the player's hand
-        #     'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
-        #     'discarded': spaces.MultiDiscrete([52] * 52),  # The cards that have been discarded so far in the game
-        #     'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
-        # })
         self.observation_space = spaces.Dict({
             'trick': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the current trick
             'hand': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the player's hand
@@ -87,10 +80,10 @@ class SpadesEnv(gym.Env):
     def reset(self, seed=None, options=None):
         self.game_over = False
         self.rounds_history = []
-        self.scores = [0] * 2
-        self.bags = [0] * 2
         self.deck = Deck()
         self.trick = CardTrick()
+        self.scores = [0] * (SpadesEnv.PLAYERS_NUM // 2) if SpadesEnv.TEAMS else [0] * SpadesEnv.PLAYERS_NUM
+        self.bags = [0] * (SpadesEnv.PLAYERS_NUM // 2) if SpadesEnv.TEAMS else [0] * SpadesEnv.PLAYERS_NUM
         self.bids = [0] * SpadesEnv.PLAYERS_NUM
         self.tricks_won = [0] * SpadesEnv.PLAYERS_NUM
         self.leading_bidder_idx = random.randrange(0, SpadesEnv.PLAYERS_NUM)
@@ -98,8 +91,56 @@ class SpadesEnv(gym.Env):
         self.spades_broken = False
         self.hands = [[], [], [], []]
         self.deal_cards()
+        self.collect_bids()
+
+        # if the DQN is not leading, then have other players play
+        if self.leading_bidder_idx != SpadesEnv.DQN_AGENT:
+            for i in range(SpadesEnv.PLAYERS_NUM - self.leading_bidder_idx):
+                self.play_card((self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM)
 
         return self._get_observation(), {}
+
+    def step(self, action: ActType):
+
+        # have DQN play
+        played_card = Card.from_action(action)
+        print(played_card)
+        self.trick.accept_card(played_card)
+        self.deck.add_card(played_card)
+        self.hands[SpadesEnv.DQN_AGENT] = [card for card in self.hands[SpadesEnv.DQN_AGENT] if not card == played_card]
+        if played_card.suit == Suit.SPADES:
+            self.spades_broken = True
+        # have remaining players play if any
+        for i in range(SpadesEnv.PLAYERS_NUM - len(self.trick.cards)):
+            self.play_card(i + 1)
+        # determine winner
+        self.previous_trick_winner = self.trick.determine_winner(self.previous_trick_winner)
+        self.tricks_won[self.previous_trick_winner] += 1
+        self.trick.reset()
+        # TODO: add something to the reward here depending on how the agent played in the trick
+
+        # check if round is over
+        if len(self.hands[SpadesEnv.DQN_AGENT]) == 0:
+            print("-" * 100)
+            self.deal_cards()
+            self.tricks_won = [0] * SpadesEnv.PLAYERS_NUM
+            self.increment_bidder()
+            self.collect_bids()
+            self.spades_broken = False
+        else:
+            # have other players play until it's DQN's turn
+            if self.previous_trick_winner != SpadesEnv.DQN_AGENT:
+                for i in range(SpadesEnv.PLAYERS_NUM - self.previous_trick_winner):
+                    self.play_card((self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM)
+
+        reward = 0
+        self.check_game_over()
+        info = {}
+        observation = self._get_observation()
+        self.steps += 1
+        time.sleep(self.sleep_duration)
+
+        return observation, reward, self.game_over, False, info
 
     @staticmethod
     def get_one_hot_encoding(cards):
@@ -136,21 +177,6 @@ class SpadesEnv(gym.Env):
     def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         pass
 
-    def step(self, action: ActType):
-        # TODO: calculate reward based on action
-        # TODO: determine if game is over
-        # TODO: return helpful info about the score and round
-        # TODO: create the observation space
-        print(action)
-        reward = 0
-        done = self.steps > 10000
-        info = {}
-        observation = self._get_observation()
-        self.steps += 1
-        time.sleep(self.sleep_duration)
-
-        return observation, reward, done, False, info
-
     def init_agents(self, agents_types):
         if agents_types is None:  # Default to RandomAgent
             agents_types = [RandomAgent.NAME] * SpadesEnv.PLAYERS_NUM
@@ -175,7 +201,9 @@ class SpadesEnv(gym.Env):
 
     def collect_bids(self):
         for i in range(SpadesEnv.PLAYERS_NUM):
-            self.bids[i] = self.agents[(self.leading_bidder_idx + i) % SpadesEnv.PLAYERS_NUM].bid()
+            player_idx = (self.leading_bidder_idx + i) % SpadesEnv.PLAYERS_NUM
+            self.bids[i] = self.agents[player_idx].bid(self.hands[player_idx])
+        print(self.bids)
 
     def calculate_team_round_score(self):
         round_scores = [0, 0]
