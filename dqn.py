@@ -9,6 +9,7 @@ from keras_rl.agents.dqn import DQNAgent
 from keras_rl.memory import SequentialMemory
 from keras_rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
 import datetime
+import json
 
 ENV_NAME = 'spades:spades-v0'
 
@@ -26,6 +27,11 @@ def make_env():
     return flattened_env, nb_actions
 
 
+def save_array_to_json(array, file_path):
+    with open(file_path, 'w') as f:
+        json.dump(array, f)
+
+
 def create_model(env, nb_actions):
     # Define the agent
 
@@ -41,7 +47,7 @@ def create_model(env, nb_actions):
                                   value_max=1.,
                                   value_min=.1,
                                   value_test=.05,
-                                  nb_steps=20000)
+                                  nb_steps=8_200_000)
     return model, memory, policy, nb_actions
 
 
@@ -57,6 +63,13 @@ def create_dqn(emit=None):
 
 def train_dqn(env, agent):
     # Train the agent
-    agent.fit(env, nb_steps=10000, visualize=False, verbose=2)
+    agent.fit(env, nb_steps=16_500_000, visualize=False, verbose=2)
+    # Save the history
+    history = env.get_history()
+    save_array_to_json(history, 'history.json')
     # Save the weights
     agent.save_weights(filepath=get_weights_fn(), overwrite=False)
+
+
+environment, dqn_agent = create_dqn()
+train_dqn(environment, dqn_agent)

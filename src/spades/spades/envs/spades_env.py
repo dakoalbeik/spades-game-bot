@@ -50,7 +50,6 @@ class SpadesEnv(gym.Env):
         SpadesEnv.TEAMS = teams
         SpadesEnv.WINNING_SCORE = max_score
         self.game_over = False
-        self.rounds_history = []
         self.scores = [0] * (SpadesEnv.PLAYERS_NUM // 2) if teams else [0] * SpadesEnv.PLAYERS_NUM
         self.bags = [0] * (SpadesEnv.PLAYERS_NUM // 2) if teams else [0] * SpadesEnv.PLAYERS_NUM
         self.deck = Deck()
@@ -71,6 +70,9 @@ class SpadesEnv(gym.Env):
     def set_emit(self, emit):
         self.emit = emit
 
+    def get_history(self):
+        return self.games_history
+
     def update_gui(self, duration=0):
         if self.emit:
             self.emit({
@@ -88,7 +90,6 @@ class SpadesEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         self.game_over = False
-        self.rounds_history = []
         self.deck = Deck()
         self.trick = CardTrick()
         self.scores = [0] * (SpadesEnv.PLAYERS_NUM // 2) if SpadesEnv.TEAMS else [0] * SpadesEnv.PLAYERS_NUM
@@ -115,7 +116,6 @@ class SpadesEnv(gym.Env):
 
         # have DQN play
         played_card = Card.from_action(action)
-        print(played_card)
         self.trick.accept_card(played_card)
         self.deck.add_card(played_card)
         self.hands[SpadesEnv.DQN_AGENT] = [card for card in self.hands[SpadesEnv.DQN_AGENT] if not card == played_card]
@@ -127,6 +127,7 @@ class SpadesEnv(gym.Env):
             self.play_card(i + 1)
         # determine winner
         self.previous_trick_winner = self.trick.determine_winner(self.previous_trick_winner)
+        reward = 1 if self.previous_trick_winner == SpadesEnv.DQN_AGENT else 0
         self.tricks_won[self.previous_trick_winner] += 1
         self.trick.reset()
         self.update_gui()
@@ -134,7 +135,10 @@ class SpadesEnv(gym.Env):
 
         # check if round is over
         if len(self.hands[SpadesEnv.DQN_AGENT]) == 0:
-            print("-" * 100)
+            if self.tricks_won[SpadesEnv.DQN_AGENT] >= self.bids[SpadesEnv.DQN_AGENT]:
+                reward += 10
+            else:
+                reward -= 10
             self.collect_scores()
             self.games_history[-1]["rounds"].append({
                 "tricks": self.tricks_won,
@@ -152,9 +156,13 @@ class SpadesEnv(gym.Env):
                 for i in range(SpadesEnv.PLAYERS_NUM - self.previous_trick_winner):
                     self.play_card((self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM)
 
-        reward = 0
         self.check_game_over()
         if self.game_over:
+            winner = np.argmax(self.scores)
+            if winner == SpadesEnv.DQN_AGENT:
+                reward += 100
+            else:
+                reward -= 100
             self.games_history[-1]["scores"] = self.scores
 
         info = {}
@@ -233,7 +241,6 @@ class SpadesEnv(gym.Env):
         for i in range(SpadesEnv.PLAYERS_NUM):
             player_idx = (self.leading_bidder_idx + i) % SpadesEnv.PLAYERS_NUM
             self.bids[player_idx] = self.agents[player_idx].bid(self.hands[player_idx])
-        print(self.bids)
 
     def calculate_team_round_score(self):
         round_scores = [0, 0]
@@ -300,7 +307,6 @@ class SpadesEnv(gym.Env):
             self.increment_bidder()
             self.check_game_over()
             self.update_gui()
-            print(self.scores)
 
     def play_round(self) -> None:
         self.deal_cards()
