@@ -11,4 +11,4 @@ class Agent(ABC):
         pass
 
     def bid(self, cards):
-        return determine_bid_number(cards)
+        return max(determine_bid_number(cards), 1)
