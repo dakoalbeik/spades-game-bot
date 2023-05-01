@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import './chart.css'
 import {
     CategoryScale,
@@ -48,18 +48,6 @@ interface ChartData {
     type: string;
 }
 
-function generateArrayOfArrays(): number[][] {
-    const arr: number[][] = [];
-    for (let i = 0; i < 4; i++) {
-        const subArr: number[] = [];
-        for (let j = 0; j < 300; j++) {
-            subArr.push(Math.floor(Math.random() * 701) - 200);
-        }
-        arr.push(subArr);
-    }
-    return arr;
-}
-
 
 /*
 *
@@ -79,16 +67,9 @@ const colors = [
 ]
 
 function ChartComponent({games_history}: ChartComponentProps) {
-    const [labels, setLabels] = useState<string[]>([]);
-    // const [data, setData] = useState<ChartData>({
-    //     labels: [],
-    //     datasets: [],
-    //     type: ''
-    // });
-
 
     const getLabels = () => {
-        return games_history.map((game, i) => `Game ${i}`)
+        return games_history.map((game, i) => `Game ${i + 1}`)
     }
 
 
@@ -99,15 +80,11 @@ function ChartComponent({games_history}: ChartComponentProps) {
 
 
         games_history.forEach(game => {
-            scoresHistory.forEach((playerScore, i) => {
-
-                if (game.scores.length === 0) return;
-
-                playerScore.push(game.scores[i])
+            game.scores.forEach((score, i) => {
+                scoresHistory[i].push(score)
             })
 
         })
-
 
         // Create a Chart.js data object with the collected data
         const data: ChartData = {

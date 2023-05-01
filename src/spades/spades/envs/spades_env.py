@@ -70,7 +70,7 @@ class SpadesEnv(gym.Env):
     def set_emit(self, emit):
         self.emit = emit
 
-    def update_gui(self, duration=0.01):
+    def update_gui(self, duration=0):
         if self.emit:
             self.emit({
                 "scores": self.scores,
@@ -155,7 +155,6 @@ class SpadesEnv(gym.Env):
         self.check_game_over()
         if self.game_over:
             self.games_history[-1]["scores"] = self.scores
-            self.add_game_history()
 
         info = {}
         observation = self._get_observation()
