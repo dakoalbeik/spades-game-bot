@@ -39,29 +39,64 @@ function AchievementBarChart({games_history}: AchievementChartComponentProps) {
     const collectGameData = () => {
 
 
+        const sets = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        games_history.forEach((game) => {
+            game.rounds.forEach(({tricks, bids}) => {
+                tricks.forEach((trick, i) => {
+                    if (trick == bids[i]) {
+                        sets[1][i] += 1
+                    } else if (trick > bids[i]) {
+                        sets[2][i] += 1
+                    } else {
+                        sets[0][i] += 1
+                    }
+                })
+            })
+        })
+
+        let percent_total = [
+            sets[0][0] + sets[1][0] + sets[2][0],
+            sets[0][1] + sets[1][1] + sets[2][1],
+            sets[0][2] + sets[1][2] + sets[2][2],
+            sets[0][3] + sets[1][3] + sets[2][3]
+        ]
+
+        let percent_under = [
+            sets[0][0] / percent_total[0], // agent 1
+            sets[0][1] / percent_total[1], // agent 2
+            sets[0][2] / percent_total[2], // agent 3
+            sets[0][3] / percent_total[3], // agent 4
+        ]
+        let percent_met = [
+            sets[1][0] / percent_total[0], // agent 1
+            sets[1][1] / percent_total[1], // agent 2
+            sets[1][2] / percent_total[2], // agent 3
+            sets[1][3] / percent_total[3], // agent 4
+        ]
+        let percent_over = [
+            sets[2][0] / percent_total[0], // agent 1
+            sets[2][1] / percent_total[1], // agent 2
+            sets[2][2] / percent_total[2], // agent 3
+            sets[2][3] / percent_total[3], // agent 4
+        ]
+
         // Create a Chart.js data object with the collected data
         const data: ChartData = {
             labels: getLabels(),
-            // datasets: scoresHistory.map((score, i) => ({
-            //     label: games_history[0]?.players[i],
-            //     data: score,
-            //     borderColor: colors[i],
-            //     fill: false
-            // })),
             datasets: [
                 {
-                    label: 'Underachieved',
-                    data: [200, 521, 276, 160],   // agent1, agent2, agent3, agent4
+                    label: `Didn't Meet`,
+                    data: percent_under,   // agent1, agent2, agent3, agent4
                     backgroundColor: colors[0]
                 },
                 {
                     label: 'Met',
-                    data: [100, 250, 126, 517],
+                    data: percent_met,
                     backgroundColor: colors[1]
                 },
                 {
-                    label: 'Overachieved',
-                    data: [300, 330, 432, 134],
+                    label: 'Exceeded',
+                    data: percent_over,
                     backgroundColor: colors[2]
                 },
             ],
@@ -79,7 +114,7 @@ function AchievementBarChart({games_history}: AchievementChartComponentProps) {
             },
             title: {
                 display: true,
-                text: 'Chart.js Bar Chart',
+                text: `Agents' Bidding Performance`,
             },
         },
         scales: {
