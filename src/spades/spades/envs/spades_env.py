@@ -70,7 +70,7 @@ class SpadesEnv(gym.Env):
     def set_emit(self, emit):
         self.emit = emit
 
-    def update_gui(self, duration=0):
+    def update_gui(self, duration=20):
         if self.emit:
             self.emit({
                 "scores": self.scores,
@@ -229,7 +229,7 @@ class SpadesEnv(gym.Env):
     def collect_bids(self):
         for i in range(SpadesEnv.PLAYERS_NUM):
             player_idx = (self.leading_bidder_idx + i) % SpadesEnv.PLAYERS_NUM
-            self.bids[i] = self.agents[player_idx].bid(self.hands[player_idx])
+            self.bids[player_idx] = self.agents[player_idx].bid(self.hands[player_idx])
         print(self.bids)
 
     def calculate_team_round_score(self):

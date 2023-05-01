@@ -5,7 +5,7 @@ import {Card} from './components/card/card';
 import TrickComponent from "./components/trick/trick";
 import HandComponent from "./components/hand/hand";
 import ScoreBoardComponent from "./components/score-board/scoreBoard";
-import ChartComponent, {Game} from "./components/chart/chart";
+import {Game} from "./components/chart/chart";
 
 
 interface GameState {
@@ -60,7 +60,7 @@ function App() {
             <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}
                             trickWinner={state.previous_trick_winner}/>
             <ScoreBoardComponent scores={state.scores} bags={state.bags}/>
-            <ChartComponent games_history={state.games_history}/>
+            {/*<ChartComponent games_history={state.games_history}/>*/}
         </div>
 
     )

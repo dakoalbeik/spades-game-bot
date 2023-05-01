@@ -1,4 +1,20 @@
-from src.card import Suit, Rank
+from src.card import Suit, Rank, Card
+
+c = [
+    Card(Rank.TWO, Suit.CLUBS),
+    Card(Rank.SIX, Suit.CLUBS),
+    Card(Rank.SEVEN, Suit.CLUBS),
+    Card(Rank.NINE, Suit.DIAMONDS),
+    Card(Rank.TEN, Suit.DIAMONDS),
+    Card(Rank.QUEEN, Suit.DIAMONDS),
+    Card(Rank.ACE, Suit.DIAMONDS),
+    Card(Rank.THREE, Suit.HEARTS),
+    Card(Rank.SIX, Suit.HEARTS),
+    Card(Rank.TEN, Suit.HEARTS),
+    Card(Rank.KING, Suit.HEARTS),
+    Card(Rank.FOUR, Suit.SPADES),
+    Card(Rank.KING, Suit.SPADES),
+]
 
 
 def determine_bid_number(cards):
@@ -5709,3 +5725,6 @@ def determine_bid_number(cards):
                                                 return 10.0
                                         if sum_spades_values > 84.50:
                                             return 12.0
+
+# bid = determine_bid_number(c)
+# print(bid)
