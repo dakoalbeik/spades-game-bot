@@ -11,6 +11,7 @@ import {
     Tooltip,
 } from 'chart.js';
 import {Line} from "react-chartjs-2";
+import socket from "../../../socket";
 
 ChartJS.register(
     CategoryScale,
@@ -72,6 +73,25 @@ function ChartComponent({games_history}: ChartComponentProps) {
         return games_history.map((game, i) => `Game ${i + 1}`)
     }
 
+    const getWinPercentage = () => {
+        let winCount = 0
+        games_history.forEach(game => {
+            let winner = 0
+            let highScore = 0
+            game.scores.forEach((score, i) => {
+                if (score > highScore) {
+                    winner = i
+                    highScore = score
+                }
+            })
+            if (winner === 0) {
+                winCount++
+            }
+        })
+        const percentage = (winCount / games_history.length) * 100
+        return percentage.toFixed(2)
+    }
+
     const collectGameData = () => {
 
 
@@ -122,6 +142,7 @@ function ChartComponent({games_history}: ChartComponentProps) {
         <div className={'wrapper'}>
             <div className={'model'}>
                 {/*<div id={'score_history'}>*/}
+                <span>Win percentage: {getWinPercentage()}%</span>
                 <Line
                     data={collectGameData()}
                     options={options}

@@ -20,7 +20,7 @@ class SpadesEnv(gym.Env):
     MAX_BAGS = 10
     TRICK_WORTH = 10
     NIL_WORTH = 100
-    WINNING_SCORE = 500
+    WINNING_SCORE = 300
     LOSING_SCORE = -200
     TEAMS = True
     PLAYERS_NUM = 4
@@ -32,15 +32,16 @@ class SpadesEnv(gym.Env):
 
     metadata = {'render.modes': ["human"]}
 
-    def __init__(self, teams=False, max_score=500, agents_types=None, emit=None):
+    def __init__(self, teams=False, max_score=300, agents_types=None, emit=None):
         # gym specific members
         self.action_space = spaces.Discrete(52)
         self.observation_space = spaces.Dict({
             'trick': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the current trick
             'hand': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards in the player's hand
-            'discarded': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards that have been discarded
-            # 'spades_broken': spaces.Discrete(2),  # Whether spades have been played yet
-            # 'score': spaces.MultiDiscrete([501] * 2)  # The score of both teams
+            # 'discarded': spaces.Box(low=0, high=1, shape=(13, 4), dtype=int),  # The cards that have been discarded
+            'bid': spaces.Discrete(14),
+            'score': spaces.Discrete(450)
+
         })
 
         self.STEP_LIMIT = 10000
@@ -203,9 +204,8 @@ class SpadesEnv(gym.Env):
         observation = {
             "trick": trick,
             "hand": hand,
-            "discarded": discarded,
-            # "spades_broken": int(self.spades_broken),
-            # "score": self.scores
+            "bid": self.bids[SpadesEnv.DQN_AGENT],
+            "score": self.scores[SpadesEnv.DQN_AGENT]
         }
 
         return observation
@@ -215,7 +215,7 @@ class SpadesEnv(gym.Env):
 
     def init_agents(self, agents_types):
         if agents_types is None:  # Default to RandomAgent
-            self.agents_types = [HeuristicAgent.NAME] * SpadesEnv.PLAYERS_NUM
+            self.agents_types = [RandomAgent.NAME] * SpadesEnv.PLAYERS_NUM
         elif isinstance(agents_types, str):  # Single agent type
             self.agents_types = [agents_types] * SpadesEnv.PLAYERS_NUM
         elif len(agents_types) != SpadesEnv.PLAYERS_NUM:

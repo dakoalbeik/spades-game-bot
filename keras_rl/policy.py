@@ -151,9 +151,10 @@ class EpsGreedyQPolicy(Policy):
     - takes current best action with prob (1 - epsilon)
     """
 
-    def __init__(self, eps=.1):
+    def __init__(self, eps=.1, exploit_only=False):
         super().__init__()
         self.eps = eps
+        self.exploit_only = exploit_only
 
     def select_action(self, q_values, mask):
         """Return the selected action
@@ -168,7 +169,7 @@ class EpsGreedyQPolicy(Policy):
         assert q_values.ndim == 1
 
         # Mask out invalid actions
-        if np.random.uniform() < self.eps:
+        if not self.exploit_only and np.random.uniform() < self.eps:
             # Select a random valid action
             valid_actions = np.where(mask == 1)[0]
             action = np.random.choice(valid_actions)
