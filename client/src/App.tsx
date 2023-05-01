@@ -5,7 +5,8 @@ import {Card} from './components/card/card';
 import TrickComponent from "./components/trick/trick";
 import HandComponent from "./components/hand/hand";
 import ScoreBoardComponent from "./components/score-board/scoreBoard";
-import ChartComponent, {Game} from "./components/chart/charts/line_chart";
+import {Game} from "./components/chart/charts/line_chart";
+import ChartComponent from "./components/chart/chart";
 
 
 interface GameState {

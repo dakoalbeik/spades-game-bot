@@ -34,7 +34,7 @@ export interface Game {
     rounds: Round[]
 }
 
-interface ChartComponentProps {
+interface ScoreChartComponentProps {
     games_history: Game[]
 }
 
@@ -49,25 +49,14 @@ interface ChartData {
     type: string;
 }
 
-
-/*
-*
-* ------CHARTS NEEDED-------
-* 1) Bar chart - for underachieved, overachieved, met (each version?)
-* 2) Line chart - Score History (each game not round)
-* 3) Line chart - Win Against Diff Agents (rolling 100 game avg)
-* 4) Pie chart - Winning Percentage (DQN vs other heuristic agents)
-*
-* */
-
-const colors = [
+export const colors = [
     '#ff2323',
     '#2443ff',
     '#e8cf00',
     '#0eda00',
 ]
 
-function ChartComponent({games_history}: ChartComponentProps) {
+function ScoresChartComponent({games_history}: ScoreChartComponentProps) {
 
     const getLabels = () => {
         return games_history.map((game, i) => `Game ${i + 1}`)
@@ -154,4 +143,4 @@ function ChartComponent({games_history}: ChartComponentProps) {
     )
 }
 
-export default ChartComponent;
+export default ScoresChartComponent;
