@@ -3,4 +3,3 @@
 __pycache__
 node_modules/
 data/
-dqn_weights/
