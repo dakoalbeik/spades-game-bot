@@ -1,5 +1,5 @@
 import React from "react";
-import './chart.css'
+import '../chart.css'
 import {
     CategoryScale,
     Chart as ChartJS,
@@ -72,7 +72,6 @@ function ChartComponent({games_history}: ChartComponentProps) {
         return games_history.map((game, i) => `Game ${i + 1}`)
     }
 
-
     const collectGameData = () => {
 
 
@@ -90,7 +89,7 @@ function ChartComponent({games_history}: ChartComponentProps) {
         const data: ChartData = {
             labels: getLabels(),
             datasets: scoresHistory.map((score, i) => ({
-                label: `Agent ${i}`,
+                label: games_history[0]?.players[i],
                 data: score,
                 borderColor: colors[i],
                 fill: false
@@ -104,6 +103,9 @@ function ChartComponent({games_history}: ChartComponentProps) {
 
     const options = {
         responsive: true,
+        animation: {
+            duration: 0,
+        },
         plugins: {
             legend: {
                 position: 'top' as const,

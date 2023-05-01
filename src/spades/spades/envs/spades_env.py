@@ -64,13 +64,14 @@ class SpadesEnv(gym.Env):
         self.agents = []
         self.hands = [[], [], [], []]
         self.games_history = []
+        self.agents_types = agents_types
         self.init_agents(agents_types)
         self.emit = emit
 
     def set_emit(self, emit):
         self.emit = emit
 
-    def update_gui(self, duration=20):
+    def update_gui(self, duration=0):
         if self.emit:
             self.emit({
                 "scores": self.scores,
@@ -167,7 +168,7 @@ class SpadesEnv(gym.Env):
         game = {
             "rounds": [],
             "scores": [],
-            "players": []
+            "players": self.agents_types
         }
         self.games_history.append(game)
 
@@ -206,19 +207,21 @@ class SpadesEnv(gym.Env):
 
     def init_agents(self, agents_types):
         if agents_types is None:  # Default to RandomAgent
-            agents_types = [HeuristicAgent.NAME] * SpadesEnv.PLAYERS_NUM
+            self.agents_types = [HeuristicAgent.NAME] * SpadesEnv.PLAYERS_NUM
         elif isinstance(agents_types, str):  # Single agent type
-            agents_types = [agents_types] * SpadesEnv.PLAYERS_NUM
+            self.agents_types = [agents_types] * SpadesEnv.PLAYERS_NUM
         elif len(agents_types) != SpadesEnv.PLAYERS_NUM:
             raise ValueError(f"Players count should be {SpadesEnv.PLAYERS_NUM}")
 
         for i in range(SpadesEnv.PLAYERS_NUM):
-            if agents_types[i] == RandomAgent.NAME:
+            if self.agents_types[i] == RandomAgent.NAME:
                 self.agents.append(RandomAgent())
-            elif agents_types[i] == HeuristicAgent.NAME:
+            elif self.agents_types[i] == HeuristicAgent.NAME:
                 self.agents.append(HeuristicAgent())
-            elif agents_types[i] == GreedyAgent.NAME:
+            elif self.agents_types[i] == GreedyAgent.NAME:
                 self.agents.append(GreedyAgent())
+
+        self.agents_types[SpadesEnv.DQN_AGENT] = 'DQN'
 
     def deal_cards(self):
         self.deck.shuffle()
