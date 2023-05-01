@@ -14,21 +14,19 @@ function ScoreBoardComponent({scores, bags}: ScoreBoardComponentProps) {
             <table>
                 <thead>
                 <tr>
-                    {scores.map((score, i) => (
-                        <>
-                            <th key={i}>{header} {i + 1}</th>
-                            <th key={i + "bags"}>Bags</th>
-                        </>
-                    ))}
+                    <th>{header}s</th>
+                    <th>Score</th>
+                    <th>Bags</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    {scores.map((score, i) => <>
+                {scores.map((score, i) =>
+                    <tr>
+                        <td>{header} {i + 1}</td>
                         <td key={i}>{score}</td>
                         <td key={i + "bags"}>{bags[i]}</td>
-                    </>)}
-                </tr>
+                    </tr>
+                )}
                 </tbody>
             </table>
         </div>)
