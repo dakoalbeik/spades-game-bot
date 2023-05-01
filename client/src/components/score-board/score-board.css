@@ -2,7 +2,7 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 20%;
+    bottom: 12%;
 }
 
 table {
@@ -14,7 +14,7 @@ table {
 
 td, th {
     border: 1px solid black;
-    padding: 8px;
+    padding: 6px;
     text-align: center;
 }
 

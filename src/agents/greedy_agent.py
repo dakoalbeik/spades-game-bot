@@ -8,7 +8,8 @@ class GreedyAgent(Agent):
 
     def __init__(self):
         super().__init__()
+        self.name = GreedyAgent.NAME
 
-    def select_card(self, valid_cards):
+    def select_card(self, valid_cards, **kwargs):
         # TODO: write a strategy for selecting cards
         return random.choice(valid_cards)
