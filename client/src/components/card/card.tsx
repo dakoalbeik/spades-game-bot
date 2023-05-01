@@ -37,7 +37,8 @@ const getSuit = (suit: number) => {
 
 function CardComponent({suit, rank}: Card) {
     return (
-        <p className={`card ${suit === 2 || suit === 0 ? "red" : "black"}`}>{getRank(rank)}{getSuit(suit)}</p>
+        <p key={rank + "" + suit}
+           className={`card ${suit === 2 || suit === 0 ? "red" : "black"}`}>{getRank(rank)}{getSuit(suit)}</p>
     );
 }
 

@@ -62,13 +62,14 @@ class SpadesEnv(gym.Env):
         self.game_winner = None
         self.agents = []
         self.hands = [[], [], [], []]
+        self.games_history = []
         self.init_agents(agents_types)
         self.emit = emit
 
     def set_emit(self, emit):
         self.emit = emit
 
-    def update_gui(self, duration=0.5):
+    def update_gui(self, duration=0.01):
         if self.emit:
             self.emit({
                 "scores": self.scores,
@@ -78,7 +79,8 @@ class SpadesEnv(gym.Env):
                 "tricks_won": self.tricks_won,
                 "spades_broken": self.spades_broken,
                 "hands": [[card.__json__() for card in hand] for hand in self.hands],
-                "previous_trick_winner": self.previous_trick_winner
+                "previous_trick_winner": self.previous_trick_winner,
+                "games_history": self.games_history
             })
             time.sleep(duration)
 
@@ -102,6 +104,8 @@ class SpadesEnv(gym.Env):
         if self.leading_bidder_idx != SpadesEnv.DQN_AGENT:
             for i in range(SpadesEnv.PLAYERS_NUM - self.leading_bidder_idx):
                 self.play_card((self.previous_trick_winner + i) % SpadesEnv.PLAYERS_NUM)
+
+        self.add_game_history()
 
         return self._get_observation(), {}
 
@@ -130,6 +134,10 @@ class SpadesEnv(gym.Env):
         if len(self.hands[SpadesEnv.DQN_AGENT]) == 0:
             print("-" * 100)
             self.collect_scores()
+            self.games_history[-1]["rounds"].append({
+                "tricks": self.tricks_won,
+                "bids": self.bids
+            })
             self.deal_cards()
             self.tricks_won = [0] * SpadesEnv.PLAYERS_NUM
             self.increment_bidder()
@@ -144,12 +152,24 @@ class SpadesEnv(gym.Env):
 
         reward = 0
         self.check_game_over()
+        if self.game_over:
+            self.games_history[-1]["scores"] = self.scores
+            self.add_game_history()
+
         info = {}
         observation = self._get_observation()
         self.steps += 1
         time.sleep(self.sleep_duration)
 
         return observation, reward, self.game_over, False, info
+
+    def add_game_history(self):
+        game = {
+            "rounds": [],
+            "scores": [],
+            "players": []
+        }
+        self.games_history.append(game)
 
     @staticmethod
     def get_one_hot_encoding(cards):

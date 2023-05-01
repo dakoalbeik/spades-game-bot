@@ -5,17 +5,19 @@ import {Card} from './components/card/card';
 import TrickComponent from "./components/trick/trick";
 import HandComponent from "./components/hand/hand";
 import ScoreBoardComponent from "./components/score-board/scoreBoard";
+import ChartComponent, {Game} from "./components/chart/chart";
 
 
 interface GameState {
-    scores: number[];
-    bags: number[];
-    trick: Card[];
-    bids: number[];
-    tricks_won: number[];
-    spades_broken: boolean;
-    hands: Card[][];
-    previous_trick_winner: number
+    scores: number[],
+    bags: number[],
+    trick: Card[],
+    bids: number[],
+    tricks_won: number[],
+    spades_broken: boolean,
+    hands: Card[][],
+    previous_trick_winner: number,
+    games_history: Game[]
 }
 
 const initialState: GameState = {
@@ -26,14 +28,21 @@ const initialState: GameState = {
     tricks_won: [0, 0, 0, 0],
     spades_broken: false,
     hands: [[], [], [], []],
-    previous_trick_winner: 0
+    previous_trick_winner: 0,
+    games_history: [
+        {
+            'rounds': [],
+            'players': [],
+            'scores': [0, 0, 0, 0]
+        }
+    ]
 };
 
 function App() {
     const [state, setState] = useState(initialState)
     useEffect(() => {
         socket.on("new-state", (_state) => {
-            console.log(_state)
+            // console.log(_state)
             setState(_state)
         })
         socket.on("msg", (msg) => {
@@ -51,6 +60,7 @@ function App() {
             <TrickComponent trick={state.trick} spadesBroken={state.spades_broken}
                             trickWinner={state.previous_trick_winner}/>
             <ScoreBoardComponent scores={state.scores} bags={state.bags}/>
+            <ChartComponent games_history={state.games_history}/>
         </div>
 
     )
