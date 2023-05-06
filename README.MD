@@ -8,7 +8,7 @@
 
 ### Start socket.io server
 
-``python server/server.py``
+``python server.py``
 
 ### Install client dependencies
 
